@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FERHAA - Historique</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --sidebar: #0f0f0f;
+      --panel: #151515;
+      --panel-soft: #1c1c1c;
+      --border: #252525;
+      --gold: #f5a623;
+      --gold-soft: rgba(245, 166, 35, 0.14);
+      --blue: #4a8ef5;
+      --blue-soft: rgba(74, 142, 245, 0.12);
+      --red: #ff6868;
+      --red-soft: rgba(255, 104, 104, 0.12);
+      --text: #ffffff;
+      --text-muted: #8a8a8a;
+      --text-soft: #b8b8b8;
+    }
+
+    [data-theme="light"] {
+      --bg: #f6f1e8;
+      --sidebar: #ece5da;
+      --panel: #ffffff;
+      --panel-soft: #f7f2ea;
+      --border: #ddd3c4;
+      --text: #151515;
+      --text-muted: #7b766e;
+      --text-soft: #59544d;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      background:
+        linear-gradient(180deg, rgba(245,166,35,.05), transparent 180px),
+        var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+    }
+
+    .sidebar-brand {
+      padding: 18px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .nav-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid var(--gold);
+      background: var(--gold-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+    }
+
+    .nav-brand {
+      font-size: .95rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .nav-brand span { color: var(--gold); }
+
+    .side-nav {
+      padding: 12px 8px;
+      flex: 1;
+    }
+
+    .side-link {
+      display: flex;
+      align-items: center;
+      padding: 11px 12px;
+      border-radius: 10px;
+      color: var(--text-soft);
+      text-decoration: none;
+      margin-bottom: 4px;
+    }
+
+    .side-link:hover,
+    .side-link.active {
+      background: var(--panel-soft);
+      color: var(--text);
+    }
+
+    .sidebar-bottom {
+      border-top: 1px solid var(--border);
+      padding: 10px 8px;
+    }
+
+    .user-card {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 12px;
+      background: var(--panel-soft);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .user-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: #000;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .user-info .name { font-weight: 700; font-size: .85rem; }
+    .user-info .meta { color: var(--text-muted); font-size: .72rem; }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .navbar {
+      height: 58px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .navbar strong { font-size: 1.05rem; }
+
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 12px;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+
+    .toggle-sw {
+      width: 28px;
+      height: 16px;
+      border-radius: 999px;
+      background: var(--gold);
+      position: relative;
+    }
+
+    .toggle-sw::after {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #fff;
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      transition: left .2s;
+    }
+
+    [data-theme="light"] .toggle-sw::after { left: 15px; }
+
+    .content {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 34px 28px 60px;
+    }
+
+    .hero {
+      margin-bottom: 22px;
+    }
+
+    .hero h1 {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .hero h1 span { color: var(--gold); }
+    .hero p { color: var(--text-muted); line-height: 1.6; }
+
+    .notice {
+      margin-bottom: 16px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      color: var(--text-soft);
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      padding: 16px 18px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-label {
+      color: var(--text-muted);
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-right: 4px;
+    }
+
+    .filter-chip,
+    .toolbar-badge {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel-soft);
+      color: var(--text-soft);
+      padding: 8px 14px;
+      font-size: .88rem;
+    }
+
+    .filter-chip {
+      cursor: pointer;
+    }
+
+    .filter-chip.active {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #000;
+      font-weight: 700;
+    }
+
+    .toolbar-badge {
+      background: color-mix(in srgb, var(--panel) 75%, white 4%);
+      color: var(--text);
+    }
+
+    .history-shell {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 18px 40px rgba(0,0,0,.12);
+    }
+
+    .table-head,
+    .table-row {
+      display: grid;
+      grid-template-columns: 72px 1.2fr 1.8fr 180px 170px 120px;
+      gap: 14px;
+      align-items: start;
+      padding: 16px 18px;
+    }
+
+    .table-head {
+      background: linear-gradient(180deg, color-mix(in srgb, var(--gold) 14%, transparent), transparent);
+      border-bottom: 1px solid var(--border);
+      color: var(--gold);
+      font-size: .8rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .table-row {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .table-row:last-child { border-bottom: none; }
+
+    .cell-id {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--gold-soft);
+      border: 1px solid rgba(245,166,35,.24);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: var(--gold);
+    }
+
+    .cell-title {
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .cell-sub {
+      color: var(--text-muted);
+      font-size: .82rem;
+      line-height: 1.5;
+    }
+
+    .answer-box {
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      color: var(--text-soft);
+      line-height: 1.55;
+      min-height: 64px;
+    }
+
+    .source-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: .78rem;
+      font-weight: 700;
+      border: 1px solid var(--border);
+    }
+
+    .source-pill.cloud {
+      color: var(--blue);
+      border-color: rgba(74,142,245,.35);
+      background: var(--blue-soft);
+    }
+
+    .source-pill.local {
+      color: var(--gold);
+      border-color: rgba(245,166,35,.35);
+      background: var(--gold-soft);
+    }
+
+    .source-pill.error {
+      color: var(--red);
+      border-color: rgba(255,104,104,.35);
+      background: var(--red-soft);
+    }
+
+    .row-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .icon-btn {
+      border-radius: 10px;
+      border: 1px solid rgba(255,104,104,.25);
+      background: transparent;
+      color: var(--red);
+      padding: 8px 10px;
+      cursor: pointer;
+      font-size: .82rem;
+    }
+
+    .empty-state {
+      padding: 46px 22px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .empty-state strong {
+      display: block;
+      color: var(--text);
+      font-size: 1.6rem;
+      margin-top: 8px;
+      margin-bottom: 6px;
+    }
+
+    @media (max-width: 1120px) {
+      .table-head,
+      .table-row {
+        grid-template-columns: 58px 1fr;
+      }
+
+      .table-head > :nth-child(n+3),
+      .table-row > :nth-child(n+3) {
+        grid-column: 2;
+      }
+
+      .row-actions {
+        justify-content: flex-start;
+      }
+
+    }
+
+    @media (max-width: 900px) {
+      body { display: block; }
+      .sidebar { width: 100%; height: auto; position: static; }
+      .content { padding: 24px 16px 40px; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="nav-logo">F</div>
+      <span class="nav-brand">FERHAA<span>AI</span></span>
+    </div>
+    <nav class="side-nav">
+      <a class="side-link" href="/chat">Chat</a>
+      <a class="side-link" href="/profile">Mon profil</a>
+      <a class="side-link active" href="/historique">Historique</a>
+      <a class="side-link" href="/gouvernance">Gouvernance IA</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <a class="side-link" href="#" onclick="logout()">Deconnexion</a>
+      <div class="user-card">
+        <div class="user-avatar" id="sideAvatar">U</div>
+        <div class="user-info">
+          <div class="name" id="sideNom">-</div>
+          <div class="meta" id="sideMeta">-</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <nav class="navbar">
+      <strong>Historique des echanges</strong>
+      <div class="theme-toggle" onclick="toggleTheme()">
+        <span>Theme</span><div class="toggle-sw"></div><span id="themeLabel">Sombre</span>
+      </div>
+    </nav>
+
+    <div class="content">
+      <div class="hero">
+        <h1>Historique <span>FERHAA</span></h1>
+        <p>Filtrez vos echanges, gardez les conversations utiles et supprimez rapidement les discussions indesirables.</p>
+      </div>
+
+      <div class="notice" id="pageNotice">Chargement des donnees...</div>
+
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <span class="toolbar-label">Filtrer</span>
+          <button class="filter-chip active" data-filter="all">Tout</button>
+          <button class="filter-chip" data-filter="cloud">Groq Cloud</button>
+          <button class="filter-chip" data-filter="local">Degrade</button>
+          <button class="filter-chip" data-filter="error">Erreurs</button>
+        </div>
+        <div class="toolbar-left">
+          <span class="toolbar-badge" id="entryCountBadge">0 entree(s)</span>
+        </div>
+      </div>
+
+      <section class="history-shell">
+        <div class="table-head">
+          <div>#</div>
+          <div>Question</div>
+          <div>Reponse</div>
+          <div>Source</div>
+          <div>Horodatage</div>
+          <div>Action</div>
+        </div>
+        <div id="historyBody"></div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    let pageState = {
+      user: null,
+      history: [],
+      conversations: [],
+      filter: 'all'
+    };
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      html.setAttribute('data-theme', next);
+      document.getElementById('themeLabel').textContent = next === 'light' ? 'Clair' : 'Sombre';
+      localStorage.setItem('theme', next);
+    }
+
+    function escHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function truncate(text, max = 180) {
+      const value = String(text || '');
+      return value.length > max ? `${value.slice(0, max)}...` : value;
+    }
+
+    function setNotice(message) {
+      document.getElementById('pageNotice').textContent = message;
+    }
+
+    async function fetchJson(url) {
+      const response = await fetch(url);
+      let data = null;
+      try {
+        data = await response.json();
+      } catch {}
+      return { ok: response.ok, status: response.status, data };
+    }
+
+    function isErrorText(text) {
+      const value = String(text || '').toLowerCase();
+      return value.includes('erreur')
+        || value.includes('indisponible')
+        || value.includes('connexion au serveur')
+        || value.includes('refus rgpd')
+        || value.includes('question vide')
+        || value.includes('non authentifi');
+    }
+
+    function sourceType(source, answerText) {
+      if (isErrorText(answerText)) return 'error';
+      if (source === 'cloud_groq') return 'cloud';
+      return 'local';
+    }
+
+    function normalizedRows() {
+      const convRows = (pageState.conversations || []).map((conversation, index) => {
+        const messages = conversation.messages || [];
+        const userMessage = messages.find(msg => msg.role === 'user');
+        const aiMessage = messages.filter(msg => msg.role === 'ai').slice(-1)[0];
+        const answer = aiMessage?.text || '';
+        const source = aiMessage?.source || (isErrorText(answer) ? 'error' : 'conversation');
+
+        return {
+          rowType: 'conversation',
+          id: conversation.id || `conv-${index + 1}`,
+          order: index + 1,
+          question: userMessage?.text || conversation.title || 'Nouvelle discussion',
+          answer,
+          source,
+          time: conversation.time || '-',
+          status: sourceType(source, answer)
+        };
+      });
+
+      const sqlRows = (pageState.history || []).map((item, index) => ({
+        rowType: 'history',
+        id: item.id || index + 1,
+        order: item.id || index + 1,
+        question: item.question || '-',
+        answer: item.rep_cloud || item.rep_locale || '',
+        source: item.source || 'inconnu',
+        time: item.date || '-',
+        status: sourceType(item.source, item.rep_cloud || item.rep_locale || '')
+      }));
+
+      const byQuestion = new Map();
+      for (const row of [...convRows, ...sqlRows]) {
+        const key = `${row.question}|${row.answer}`;
+        if (!byQuestion.has(key)) {
+          byQuestion.set(key, row);
+        }
+      }
+
+      return Array.from(byQuestion.values());
+    }
+
+    function filteredRows() {
+      const rows = normalizedRows();
+      if (pageState.filter === 'all') return rows;
+      return rows.filter(row => row.status === pageState.filter);
+    }
+
+    function sourceLabel(row) {
+      if (row.status === 'error') return 'Erreur';
+      if (row.status === 'cloud') return 'Cloud';
+      return 'Degrade';
+    }
+
+    function renderTable() {
+      const body = document.getElementById('historyBody');
+      const rows = filteredRows();
+      document.getElementById('entryCountBadge').textContent = `${rows.length} entree(s)`;
+
+      if (!rows.length) {
+        body.innerHTML = `
+          <div class="empty-state">
+            <div style="font-size:2rem;">📭</div>
+            <strong>Aucun enregistrement</strong>
+            <div>Aucune discussion ne correspond au filtre selectionne.</div>
+          </div>
+        `;
+        return;
+      }
+
+      body.innerHTML = rows.map((row, index) => `
+        <div class="table-row">
+          <div><div class="cell-id">${index + 1}</div></div>
+          <div>
+            <div class="cell-title">${escHtml(truncate(row.question, 90))}</div>
+            <div class="cell-sub">${escHtml(row.rowType === 'conversation' ? 'Discussion sauvegardee' : 'Journal backend')}</div>
+          </div>
+          <div>
+            <div class="answer-box">${escHtml(truncate(row.answer, 220)).replace(/\n/g, '<br>')}</div>
+          </div>
+          <div>
+            <span class="source-pill ${row.status}">${sourceLabel(row)}</span>
+          </div>
+          <div class="cell-sub">${escHtml(row.time)}</div>
+          <div class="row-actions">
+            <button class="icon-btn" data-delete-id="${escHtml(row.id)}" data-delete-type="${escHtml(row.rowType)}">Supprimer</button>
+          </div>
+        </div>
+      `).join('');
+
+      body.querySelectorAll('[data-delete-id]').forEach(button => {
+        button.addEventListener('click', async () => {
+          await deleteRow(
+            button.getAttribute('data-delete-type'),
+            button.getAttribute('data-delete-id')
+          );
+        });
+      });
+    }
+
+    function renderUser() {
+      const user = pageState.user || {};
+      const initial = (user.prenom || 'U')[0].toUpperCase();
+      document.getElementById('sideAvatar').textContent = initial;
+      document.getElementById('sideNom').textContent = `${user.prenom || ''} ${user.nom || ''}`.trim() || '-';
+      document.getElementById('sideMeta').textContent = `${user.filiere || '-'} · ${user.annee || '-'}`;
+    }
+
+    async function loadUser() {
+      const profile = await fetchJson('/api/profile');
+      if (profile.ok && profile.data) return profile.data;
+
+      const me = await fetchJson('/api/me');
+      if (me.ok && me.data) return me.data;
+
+      throw new Error('user_load_failed');
+    }
+
+    async function loadPageData() {
+      const [user, history] = await Promise.all([
+        loadUser(),
+        fetchJson('/api/historique')
+      ]);
+
+      if (!history.ok || !history.data) {
+        throw new Error('history_load_failed');
+      }
+
+      pageState.user = user;
+      pageState.history = Array.isArray(history.data.items) ? history.data.items : [];
+      pageState.conversations = Array.isArray(history.data.conversations) ? history.data.conversations : [];
+    }
+
+    async function deleteRow(rowType, id) {
+      setNotice('Suppression de la discussion...');
+      const url = rowType === 'history'
+        ? `/api/historique/${encodeURIComponent(id)}`
+        : `/api/conversations/${encodeURIComponent(id)}`;
+      const response = await fetch(url, { method: 'DELETE' });
+      if (!response.ok) {
+        setNotice('Suppression impossible pour cette discussion.');
+        return;
+      }
+      await init(false);
+      setNotice('Discussion supprimee.');
+    }
+
+    async function logout() {
+      await fetch('/api/logout', { method: 'POST' });
+      window.location.href = '/';
+    }
+
+    async function init(resetNotice = true) {
+      const saved = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('themeLabel').textContent = saved === 'light' ? 'Clair' : 'Sombre';
+      if (resetNotice) setNotice('Chargement des donnees...');
+
+      await loadPageData();
+      renderUser();
+      renderTable();
+
+      const totalRows = normalizedRows().length;
+      setNotice(`${totalRows} element(s) charges, ${pageState.conversations.length} discussion(s) sauvegardee(s).`);
+    }
+
+    document.querySelectorAll('.filter-chip').forEach(button => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('.filter-chip').forEach(item => item.classList.remove('active'));
+        button.classList.add('active');
+        pageState.filter = button.getAttribute('data-filter');
+        renderTable();
+      });
+    });
+
+    init().catch(() => {
+      setNotice('Impossible de charger les donnees.');
+      document.getElementById('historyBody').innerHTML = `
+        <div class="empty-state">
+          <div style="font-size:2rem;">⚠</div>
+          <strong>Chargement impossible</strong>
+          <div>Les donnees d'historique n'ont pas pu etre recuperees. Revenez au chat puis rouvrez cette page.</div>
+        </div>
+      `;
+    });
+  </script>
+</body>
+</html>

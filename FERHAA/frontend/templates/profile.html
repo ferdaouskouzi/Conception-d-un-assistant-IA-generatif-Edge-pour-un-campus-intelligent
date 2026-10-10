@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FERHAA - Mon profil</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --sidebar: #0f0f0f;
+      --card: #161616;
+      --card2: #1a1a1a;
+      --border: #222222;
+      --gold: #f5a623;
+      --gold-dim: rgba(245,166,35,.12);
+      --green: #4caf50;
+      --red: #ff5555;
+      --text: #ffffff;
+      --text-muted: #777777;
+      --text-sub: #a0a0a0;
+    }
+    [data-theme="light"] {
+      --bg: #f5f0e8;
+      --sidebar: #ede8de;
+      --card: #ffffff;
+      --card2: #f7f4ef;
+      --border: #ddd8cc;
+      --text: #111111;
+      --text-muted: #777777;
+      --text-sub: #666666;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; }
+    .sidebar {
+      width: 240px; background: var(--sidebar); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh;
+    }
+    .sidebar-brand, .navbar { border-bottom: 1px solid var(--border); }
+    .sidebar-brand { padding: 18px 16px; display: flex; gap: 10px; align-items: center; }
+    .nav-logo {
+      width: 32px; height: 32px; border-radius: 8px; background: var(--gold-dim); border: 1px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .nav-brand { font-size: .9rem; font-weight: 800; letter-spacing: 1px; }
+    .nav-brand span { color: var(--gold); }
+    .side-nav { padding: 12px 8px; flex: 1; }
+    .side-link {
+      display: flex; gap: 10px; align-items: center; color: var(--text-sub); text-decoration: none;
+      padding: 10px; border-radius: 8px; margin-bottom: 4px;
+    }
+    .side-link.active, .side-link:hover { background: var(--card2); color: var(--text); }
+    .sidebar-bottom { border-top: 1px solid var(--border); padding: 10px 8px; }
+    .user-card { display: flex; gap: 10px; align-items: center; background: var(--card2); border-radius: 8px; padding: 10px; }
+    .user-avatar {
+      width: 32px; height: 32px; border-radius: 50%; background: var(--gold); color: #000; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .user-info .name { font-size: .84rem; font-weight: 600; }
+    .user-info .meta { font-size: .72rem; color: var(--text-muted); }
+    .main { flex: 1; }
+    .navbar {
+      height: 54px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px; background: var(--sidebar); position: sticky; top: 0;
+    }
+    .theme-toggle {
+      display: flex; align-items: center; gap: 6px; border: 1px solid var(--border); border-radius: 999px;
+      padding: 4px 10px; background: var(--card); cursor: pointer; color: var(--text-muted); font-size: .75rem;
+    }
+    .toggle-sw { width: 28px; height: 16px; border-radius: 999px; background: var(--gold); position: relative; }
+    .toggle-sw::after {
+      content: ""; width: 10px; height: 10px; border-radius: 50%; background: #fff; position: absolute; top: 3px; left: 3px; transition: left .2s;
+    }
+    [data-theme="light"] .toggle-sw::after { left: 15px; }
+    .content { max-width: 980px; margin: 0 auto; padding: 34px 28px 60px; }
+    .hero { margin-bottom: 26px; }
+    .hero h1 { font-size: 1.55rem; margin-bottom: 8px; }
+    .hero h1 span { color: var(--gold); }
+    .hero p { color: var(--text-muted); line-height: 1.6; }
+    .layout { display: grid; grid-template-columns: 320px 1fr; gap: 16px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+    .identity { text-align: center; }
+    .identity .big-avatar {
+      width: 78px; height: 78px; border-radius: 50%; margin: 0 auto 14px; background: var(--gold); color: #000; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+    }
+    .identity h2 { font-size: 1.2rem; margin-bottom: 6px; }
+    .identity p { color: var(--text-muted); line-height: 1.5; }
+    .pill {
+      display: inline-block; margin-top: 12px; font-size: .72rem; padding: 4px 10px; border-radius: 999px;
+      background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(245,166,35,.35);
+    }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .field { display: flex; flex-direction: column; gap: 8px; }
+    .field.full { grid-column: 1 / -1; }
+    label { font-size: .78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    input, select {
+      width: 100%; padding: 12px 13px; border-radius: 10px; border: 1px solid var(--border);
+      background: var(--card2); color: var(--text); outline: none; font-family: inherit;
+    }
+    .actions { display: flex; justify-content: space-between; gap: 12px; margin-top: 18px; align-items: center; }
+    .status { font-size: .84rem; color: var(--text-muted); min-height: 20px; }
+    .status.success { color: var(--green); }
+    .status.error { color: var(--red); }
+    .btn {
+      padding: 11px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; background: transparent; color: var(--text);
+    }
+    .btn.primary { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 700; }
+    .meta-list { display: grid; gap: 12px; margin-top: 16px; }
+    .meta-item { padding: 12px; border-radius: 10px; background: var(--card2); border: 1px solid var(--border); }
+    .meta-item strong { display: block; margin-bottom: 4px; }
+    .meta-item span { color: var(--text-muted); line-height: 1.5; }
+    .hidden { display: none !important; }
+    .admin-note {
+      margin-top: 14px; padding: 12px 14px; border-radius: 10px;
+      background: var(--gold-dim); border: 1px solid rgba(245,166,35,.2); color: var(--text-sub);
+      line-height: 1.6; font-size: .84rem;
+    }
+    .admin-link { color: var(--gold); }
+    .admin-link:hover { background: var(--gold-dim) !important; }
+    .section-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-top: 16px; }
+    .section-card h3 { font-size: .95rem; font-weight: 700; margin-bottom: 14px; }
+    .action-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: .85rem; }
+    .action-row:last-child { border-bottom: none; }
+    .action-row span { color: var(--text-muted); font-size: .78rem; }
+    .btn-sm { padding: 7px 13px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; background: transparent; color: var(--text); font-size: .82rem; }
+    .btn-sm:hover { background: var(--card2); }
+    .btn-sm.danger { border-color: rgba(255,85,85,.4); color: var(--red); }
+    .btn-sm.danger:hover { background: rgba(255,85,85,.08); }
+    .pw-grid { display: grid; gap: 12px; margin-top: 4px; }
+    .pw-status { font-size: .84rem; min-height: 18px; margin-top: 8px; }
+    .pw-status.ok { color: var(--green); }
+    .pw-status.err { color: var(--red); }
+    @media (max-width: 900px) {
+      body { display: block; }
+      .sidebar { width: 100%; height: auto; position: static; }
+      .layout, .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="nav-logo">F</div>
+      <span class="nav-brand">FERHAA<span>AI</span></span>
+    </div>
+    <nav class="side-nav">
+      <a class="side-link" href="/chat">Chat</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <a class="side-link" href="/gouvernance">Gouvernance IA</a>
+      <a class="side-link admin-link" href="/admin" id="adminLink" style="display:none">Dashboard Admin</a>
+      <a class="side-link" href="#" onclick="logout()">D&eacute;connexion</a>
+      <div class="user-card">
+        <div class="user-avatar" id="sideAvatar">U</div>
+        <div class="user-info">
+          <div class="name" id="sideNom">-</div>
+          <div class="meta" id="sideMeta">-</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <nav class="navbar">
+      <strong>Mon profil</strong>
+      <div class="theme-toggle" onclick="toggleTheme()">
+        <span>Theme</span><div class="toggle-sw"></div><span id="themeLabel">Sombre</span>
+      </div>
+    </nav>
+
+    <div class="content">
+      <div class="hero">
+        <h1>Profil <span id="heroRoleLabel">etudiant</span></h1>
+        <p id="heroText">Modifiez les informations que FERHAA utilise pour personnaliser ses reponses et verifier votre contexte academique.</p>
+      </div>
+
+
+
+      <div class="layout">
+        <section class="card identity">
+          <div class="big-avatar" id="bigAvatar">U</div>
+          <h2 id="identityName">Utilisateur</h2>
+          <p id="identityMeta">-</p>
+          <span class="pill" id="identityId">Identifiant -</span>
+
+          <div class="meta-list">
+            <div class="meta-item">
+              <strong>Confidentialite</strong>
+              <span>Votre identifiant reste local et n'est pas envoye au modele IA.</span>
+            </div>
+            <div class="meta-item">
+              <strong>Personnalisation</strong>
+              <span id="personalizationText">Prenom, filiere et annee peuvent etre utilises pour contextualiser les reponses.</span>
+            </div>
+            <div class="admin-note hidden" id="adminProfileNote">
+              Les comptes administrateurs utilisent un profil reduit. Filiere, annee, telephone et historique ne sont pas exposes ici.
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <form id="profileForm">
+            <div class="form-grid">
+              <div class="field">
+                <label for="prenom">Prenom</label>
+                <input id="prenom" name="prenom" required />
+              </div>
+              <div class="field">
+                <label for="nom">Nom</label>
+                <input id="nom" name="nom" required />
+              </div>
+              <div class="field full">
+                <label for="identifiant">Identifiant</label>
+                <input id="identifiant" name="identifiant" disabled />
+              </div>
+              <div class="field">
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" />
+              </div>
+              <div class="field" id="telephoneField">
+                <label for="telephone">Telephone</label>
+                <input id="telephone" name="telephone" />
+              </div>
+              <div class="field" id="filiereField">
+                <label for="filiere">Filiere</label>
+                <select id="filiere" name="filiere">
+                  <option value="">Selectionner</option>
+                  <option value="IACS">IACS</option>
+                  <option value="G2ER">G2ER</option>
+                  <option value="TDI">TDI</option>
+                  <option value="IAA">IAA</option>
+                </select>
+              </div>
+              <div class="field" id="anneeField">
+                <label for="annee">Annee</label>
+                <select id="annee" name="annee">
+                  <option value="">Selectionner</option>
+                  <option value="CP1">CP1</option>
+                  <option value="CP2">CP2</option>
+                  <option value="CI1">CI1</option>
+                  <option value="CI2">CI2</option>
+                  <option value="CI3">CI3</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="actions">
+              <div class="status" id="formStatus"></div>
+              <button class="btn primary" type="submit">Enregistrer les modifications</button>
+            </div>
+          </form>
+        </section>
+      </div>
+
+      <!-- Sections supplémentaires sous le layout principal -->
+      <div id="extraSections" style="margin-top:20px;display:none;">
+
+        <!-- Changer le mot de passe (tous les rôles) -->
+        <div class="section-card">
+          <h3>Modifier le mot de passe</h3>
+          <div class="pw-grid">
+            <div class="field">
+              <label for="pwCurrent">Mot de passe actuel</label>
+              <input id="pwCurrent" type="password" placeholder="Mot de passe actuel..." />
+            </div>
+            <div class="field">
+              <label for="pwNew">Nouveau mot de passe</label>
+              <input id="pwNew" type="password" placeholder="Nouveau mot de passe..." />
+            </div>
+            <div class="field">
+              <label for="pwConfirm">Confirmer le nouveau mot de passe</label>
+              <input id="pwConfirm" type="password" placeholder="Confirmer..." />
+            </div>
+          </div>
+          <div class="actions" style="margin-top:12px;">
+            <div class="pw-status" id="pwStatus"></div>
+            <button class="btn primary" type="button" onclick="changePassword()">Modifier le mot de passe</button>
+          </div>
+        </div>
+
+        <!-- Confidentialité & données (étudiants uniquement) -->
+        <div class="section-card hidden" id="privacySection">
+          <h3>Confidentialit&eacute; &amp; donn&eacute;es</h3>
+          <div class="action-row">
+            <div>
+              <strong>T&eacute;l&eacute;charger mes donn&eacute;es</strong>
+              <span>Exporter tout votre historique au format JSON</span>
+            </div>
+            <button class="btn-sm" onclick="exportData()">T&eacute;l&eacute;charger</button>
+          </div>
+          <div class="action-row">
+            <div>
+              <strong>Supprimer mon historique</strong>
+              <span>Efface d&eacute;finitivement tous vos &eacute;changes enregistr&eacute;s</span>
+            </div>
+            <button class="btn-sm danger" onclick="deleteAllHistory()">Supprimer</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function isAdminRole(role) {
+      return ['admin_it', 'admin_pedagogique', 'super_admin'].includes(role || '');
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      html.setAttribute('data-theme', next);
+      document.getElementById('themeLabel').textContent = next === 'light' ? 'Clair' : 'Sombre';
+      localStorage.setItem('theme', next);
+    }
+
+    async function logout() {
+      await fetch('/api/logout', { method: 'POST' });
+      window.location.href = '/';
+    }
+
+    function applyProfileMode(user) {
+      const admin = isAdminRole(user.role);
+      document.getElementById('telephoneField').classList.toggle('hidden', admin);
+      document.getElementById('filiereField').classList.toggle('hidden', admin);
+      document.getElementById('anneeField').classList.toggle('hidden', admin);
+      document.getElementById('adminProfileNote').classList.toggle('hidden', !admin);
+      document.getElementById('heroRoleLabel').textContent = admin ? 'administrateur' : 'etudiant';
+      document.getElementById('heroText').textContent = admin
+        ? 'Votre fiche admin reste volontairement minimale pour limiter l exposition de donnees non necessaires.'
+        : 'Modifiez les informations que FERHAA utilise pour personnaliser ses reponses et verifier votre contexte academique.';
+      document.getElementById('personalizationText').textContent = admin
+        ? 'Seules les informations strictement utiles au role administrateur sont conservees dans cette vue.'
+        : 'Prenom, filiere et annee peuvent etre utilises pour contextualiser les reponses.';
+    }
+
+    function fillIdentity(user) {
+      const admin = isAdminRole(user.role);
+      const ini = (user.prenom || 'U')[0].toUpperCase();
+      document.getElementById('sideAvatar').textContent = ini;
+      document.getElementById('bigAvatar').textContent = ini;
+      document.getElementById('sideNom').textContent = `${user.prenom || ''} ${user.nom || ''}`.trim() || '-';
+      document.getElementById('sideMeta').textContent = admin
+        ? (user.role_label || 'Administrateur')
+        : [user.filiere || '-', user.annee || '-'].join(' · ');
+      document.getElementById('identityName').textContent = `${user.prenom || ''} ${user.nom || ''}`.trim() || 'Utilisateur';
+      document.getElementById('identityMeta').textContent = admin
+        ? `${user.role_label || 'Administrateur'}${user.department ? ` · ${user.department}` : ''}`
+        : `${user.filiere || 'Filiere non renseignee'} · ${user.annee || 'Annee non renseignee'}`;
+      document.getElementById('identityId').textContent = `Identifiant ${user.identifiant || '-'}`;
+    }
+
+    function fillForm(user) {
+      ['prenom', 'nom', 'identifiant', 'email', 'telephone', 'filiere', 'annee'].forEach(field => {
+        const el = document.getElementById(field);
+        if (el) el.value = user[field] || '';
+      });
+    }
+
+    function setStatus(message, kind) {
+      const status = document.getElementById('formStatus');
+      status.textContent = message || '';
+      status.className = `status ${kind || ''}`.trim();
+    }
+
+    async function loadProfile() {
+      const resp = await fetch('/api/profile');
+      if (!resp.ok) {
+        window.location.href = '/';
+        return;
+      }
+      const user = await resp.json();
+      applyProfileMode(user);
+      fillIdentity(user);
+      fillForm(user);
+      // Show extra sections
+      document.getElementById('extraSections').style.display = '';
+      // Show privacy section for students only
+      if (!isAdminRole(user.role)) {
+        document.getElementById('privacySection').classList.remove('hidden');
+      }
+      // Show admin link for admins
+      if (isAdminRole(user.role)) {
+        const al = document.getElementById('adminLink');
+        if (al) al.style.display = '';
+      }
+    }
+
+    async function changePassword() {
+      const current = document.getElementById('pwCurrent').value;
+      const nw = document.getElementById('pwNew').value;
+      const confirm = document.getElementById('pwConfirm').value;
+      const statusEl = document.getElementById('pwStatus');
+      statusEl.className = 'pw-status';
+      if (!current || !nw || !confirm) {
+        statusEl.textContent = 'Veuillez remplir tous les champs.';
+        statusEl.className = 'pw-status err';
+        return;
+      }
+      if (nw !== confirm) {
+        statusEl.textContent = 'Les mots de passe ne correspondent pas.';
+        statusEl.className = 'pw-status err';
+        return;
+      }
+      statusEl.textContent = 'Modification en cours...';
+      const resp = await fetch('/api/profile/password', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ current_password: current, new_password: nw })
+      });
+      const data = await resp.json();
+      if (resp.ok && data.success) {
+        statusEl.textContent = 'Mot de passe modifié avec succès.';
+        statusEl.className = 'pw-status ok';
+        document.getElementById('pwCurrent').value = '';
+        document.getElementById('pwNew').value = '';
+        document.getElementById('pwConfirm').value = '';
+      } else {
+        statusEl.textContent = data.message || 'Erreur lors de la modification.';
+        statusEl.className = 'pw-status err';
+      }
+    }
+
+    async function exportData() {
+      if (!confirm('Télécharger votre historique complet en JSON ?')) return;
+      const resp = await fetch('/api/historique/export');
+      if (!resp.ok) { alert('Erreur lors de l\'export.'); return; }
+      const data = await resp.json();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'ferhaa_historique.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function deleteAllHistory() {
+      if (!confirm('Supprimer définitivement tout votre historique ? Cette action est irréversible.')) return;
+      const resp = await fetch('/api/historique/all', { method: 'DELETE' });
+      const data = await resp.json();
+      if (resp.ok && data.success) {
+        alert(`Historique supprimé (${data.deleted} entrée(s) effacée(s)).`);
+      } else {
+        alert('Erreur lors de la suppression.');
+      }
+    }
+
+    async function init() {
+      const saved = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('themeLabel').textContent = saved === 'light' ? 'Clair' : 'Sombre';
+      await loadProfile();
+    }
+
+    document.getElementById('profileForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      setStatus('Enregistrement en cours...', '');
+      const payload = {
+        prenom: document.getElementById('prenom').value.trim(),
+        nom: document.getElementById('nom').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        telephone: document.getElementById('telephone').value.trim(),
+        filiere: document.getElementById('filiere').value,
+        annee: document.getElementById('annee').value
+      };
+
+      const resp = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await resp.json();
+
+      if (!resp.ok || !data.success) {
+        setStatus(data.message || 'Echec de mise a jour du profil.', 'error');
+        return;
+      }
+
+      applyProfileMode(data.user);
+      fillIdentity(data.user);
+      fillForm(data.user);
+      setStatus('Profil mis a jour avec succes.', 'success');
+    });
+
+    init().catch(() => setStatus('Impossible de charger le profil.', 'error'));
+  </script>
+</body>
+</html>

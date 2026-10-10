@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FERHAA - Dashboard Admin</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --panel: #151515;
+      --panel-soft: #1b1b1b;
+      --border: #272727;
+      --gold: #f5a623;
+      --gold-soft: rgba(245,166,35,.14);
+      --blue: #4a8ef5;
+      --blue-soft: rgba(74,142,245,.12);
+      --red: #ff6969;
+      --text: #ffffff;
+      --text-muted: #8b8b8b;
+    }
+    [data-theme="light"] {
+      --bg: #f6f1e8;
+      --panel: #ffffff;
+      --panel-soft: #f7f2ea;
+      --border: #ddd4c7;
+      --text: #141414;
+      --text-muted: #726d67;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    .page { max-width: 1280px; margin: 0 auto; padding: 28px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
+    .title h1 { font-size: 1.9rem; margin-bottom: 6px; }
+    .title h1 span { color: var(--gold); }
+    .title p { color: var(--text-muted); }
+    .actions { display: flex; gap: 10px; align-items: center; }
+    .btn { border: 1px solid var(--border); background: var(--panel); color: var(--text); padding: 10px 14px; border-radius: 12px; cursor: pointer; text-decoration: none; }
+    .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 18px; }
+    .stat { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 18px; }
+    .stat .value { font-size: 1.5rem; font-weight: 800; }
+    .stat .label { color: var(--text-muted); margin-top: 6px; font-size: .82rem; }
+    .grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 16px; }
+    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 18px; padding: 18px; }
+    .panel h2 { font-size: 1rem; margin-bottom: 14px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { color: var(--gold); font-size: .78rem; text-transform: uppercase; letter-spacing: 1px; }
+    td { font-size: .9rem; }
+    tr:last-child td { border-bottom: none; }
+    .role { display: inline-block; padding: 4px 8px; border-radius: 999px; background: var(--gold-soft); color: var(--gold); font-size: .74rem; font-weight: 700; }
+    .sev-warning { color: var(--gold); }
+    .sev-critical { color: var(--red); }
+    .meta { color: var(--text-muted); font-size: .78rem; }
+    .user-card { padding: 12px; border: 1px solid var(--border); background: var(--panel-soft); border-radius: 14px; margin-bottom: 10px; }
+    .user-card strong { display: block; margin-bottom: 4px; }
+    @media (max-width: 1000px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <div class="title">
+        <h1>Dashboard <span>Administrateur</span></h1>
+        <p>Supervision des roles, performances, feedbacks et audit FERHAA.</p>
+      </div>
+      <div class="actions">
+        <a class="btn" href="/chat">Retour au chat</a>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="value" id="statUsers">0</div><div class="label">Utilisateurs</div></div>
+      <div class="stat"><div class="value" id="statAdmins">0</div><div class="label">Admins</div></div>
+      <div class="stat"><div class="value" id="statHistory">0</div><div class="label">Interactions IA</div></div>
+      <div class="stat"><div class="value" id="statAudit">0</div><div class="label">Logs d'audit</div></div>
+      <div class="stat"><div class="value" id="statFeedback">0</div><div class="label">Feedbacks</div></div>
+    </div>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>Audit recent</h2>
+        <table>
+          <thead>
+            <tr><th>Utilisateur</th><th>Role</th><th>Action</th><th>Details</th><th>Date</th></tr>
+          </thead>
+          <tbody id="auditTable">
+            <tr><td colspan="5" class="meta">Chargement...</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="panel">
+        <h2>Utilisateurs et roles</h2>
+        <div id="usersList"><div class="meta">Chargement...</div></div>
+      </section>
+    </div>
+
+    <div class="grid" style="margin-top:16px;">
+      <section class="panel">
+        <h2>Feedback recent</h2>
+        <table>
+          <thead>
+            <tr><th>Utilisateur</th><th>Note</th><th>Commentaire</th><th>Date</th></tr>
+          </thead>
+          <tbody id="feedbackTable">
+            <tr><td colspan="4" class="meta">Chargement...</td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="panel">
+        <h2>Couverture fonctionnelle</h2>
+        <div class="user-card"><strong>Admin IT</strong><span class="meta">Deploiement Edge/Cloud, supervision technique, comptes et acces.</span></div>
+        <div class="user-card"><strong>Admin Pedagogique</strong><span class="meta">Validation des contenus, correction des reponses et qualite pedagogique.</span></div>
+        <div class="user-card"><strong>Admin Securite</strong><span class="meta">Audit, surveillance des logs, detection d'anomalies et protection des donnees.</span></div>
+        <div class="user-card"><strong>Super Admin</strong><span class="meta">Vision globale, gouvernance IA, policies et acces complet.</span></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    async function init() {
+      const resp = await fetch('/api/admin/dashboard');
+      if (!resp.ok) {
+        document.body.innerHTML = '<div class="page"><div class="panel">Acces administrateur refuse.</div></div>';
+        return;
+      }
+      const data = await resp.json();
+      const stats = data.stats || {};
+      document.getElementById('statUsers').textContent = stats.user_count || 0;
+      document.getElementById('statAdmins').textContent = stats.admin_count || 0;
+      document.getElementById('statHistory').textContent = stats.history_count || 0;
+      document.getElementById('statAudit').textContent = stats.audit_count || 0;
+      document.getElementById('statFeedback').textContent = stats.feedback_count || 0;
+
+      document.getElementById('auditTable').innerHTML = (data.audit_logs || []).map(log => `
+        <tr>
+          <td>${log.user_identifiant || '-'}</td>
+          <td><span class="role">${log.user_role || '-'}</span></td>
+          <td>${log.action || '-'}</td>
+          <td class="${log.severity === 'critical' ? 'sev-critical' : log.severity === 'warning' ? 'sev-warning' : ''}">${log.details || '-'}</td>
+          <td class="meta">${log.date || '-'}</td>
+        </tr>
+      `).join('') || '<tr><td colspan="5" class="meta">Aucun log.</td></tr>';
+
+      document.getElementById('feedbackTable').innerHTML = (data.feedback || []).map(item => `
+        <tr>
+          <td>${item.user_identifiant || '-'}</td>
+          <td>${item.rating === 'up' ? '👍' : '👎'}</td>
+          <td>${item.comment || '-'}</td>
+          <td class="meta">${item.date || '-'}</td>
+        </tr>
+      `).join('') || '<tr><td colspan="4" class="meta">Aucun feedback.</td></tr>';
+
+      document.getElementById('usersList').innerHTML = (data.users || []).map(user => `
+        <div class="user-card">
+          <strong>${user.prenom || ''} ${user.nom || ''}</strong>
+          <div class="role">${user.role_label || user.role || 'Utilisateur'}</div>
+          <div class="meta">${user.email || user.identifiant || '-'}</div>
+          <div class="meta">Apogee admin: ${user.special_apogee || '-'}</div>
+          <div class="meta">CIN admin: ${user.special_cin || '-'}</div>
+        </div>
+      `).join('');
+    }
+    init();
+  </script>
+</body>
+</html>

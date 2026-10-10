@@ -1,0 +1,36 @@
+# Secrets : ne jamais versionner
+.env
+*.env
+.env.*
+!.env.example
+
+# Données locales (comptes, conversations, supports de cours)
+*.db
+*.sqlite
+*.sqlite3
+backend/data/*
+!backend/data/.gitkeep
+
+# Cache Python / tests
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Environnements virtuels
+venv/
+.venv/
+env/
+
+# IDE / outils
+.vscode/
+.idea/
+.claude/
+
+# Logs et archives
+*.log
+*.zip
+
+# Build
+dist/
+build/
+*.egg-info/

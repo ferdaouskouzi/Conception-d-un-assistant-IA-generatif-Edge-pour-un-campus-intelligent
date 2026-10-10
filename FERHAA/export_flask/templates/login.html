@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FERHAA - Connexion</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --card: #131313;
+      --card-border: #252525;
+      --gold: #f5a623;
+      --gold-hover: #e09510;
+      --text: #ffffff;
+      --text-muted: #8a8a8a;
+      --input-bg: #1a1a1a;
+      --input-border: #303030;
+      --error: #ff5f5f;
+    }
+    [data-theme="light"] {
+      --bg: #f3eee5;
+      --card: #ffffff;
+      --card-border: #ddd4c7;
+      --text: #171717;
+      --text-muted: #6f6a63;
+      --input-bg: #f7f2ea;
+      --input-border: #ddd4c7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, rgba(245,166,35,.10), transparent 240px), var(--bg);
+      font-family: "Segoe UI", sans-serif;
+      padding: 20px;
+    }
+    .card {
+      width: 100%;
+      max-width: 460px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 22px;
+      padding: 42px;
+    }
+    .theme-toggle {
+      position: fixed;
+      top: 18px;
+      right: 22px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 999px;
+      padding: 6px 14px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .toggle-switch {
+      width: 36px;
+      height: 20px;
+      background: var(--gold);
+      border-radius: 999px;
+      position: relative;
+    }
+    .toggle-switch::after {
+      content: "";
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      transition: left .2s;
+    }
+    [data-theme="light"] .toggle-switch::after { left: 19px; }
+    .logo {
+      width: 68px;
+      height: 68px;
+      border-radius: 18px;
+      border: 1px solid rgba(245,166,35,.25);
+      background: rgba(245,166,35,.10);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 1.9rem;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.7rem;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    h1 span { color: var(--gold); }
+    .subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    .form-group { margin-bottom: 16px; }
+    label {
+      display: block;
+      color: var(--gold);
+      font-size: .74rem;
+      font-weight: 700;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: .96rem;
+      outline: none;
+    }
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: var(--gold);
+      color: #000;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+    .btn:hover { background: var(--gold-hover); }
+    .error-msg {
+      display: none;
+      margin-top: 12px;
+      color: var(--error);
+      font-size: .84rem;
+      text-align: center;
+    }
+    .footer-link {
+      margin-top: 22px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: .86rem;
+    }
+    .footer-link a {
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="theme-toggle" onclick="toggleTheme()">
+    <span>Theme</span>
+    <div class="toggle-switch"></div>
+    <span id="themeLabel">Sombre</span>
+  </div>
+
+  <div class="card">
+    <div class="logo">F</div>
+    <h1>Connexion <span>FERHAA</span></h1>
+    <p class="subtitle">Connectez-vous avec votre email institutionnel ou un identifiant admin special.</p>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label>Email Institutionnel</label>
+        <input type="text" id="apogee" name="login_email" placeholder="prenom.nom@usms.ac.ma" autocomplete="off" autocapitalize="off" spellcheck="false" />
+      </div>
+      <div class="form-group">
+        <label>Mot de Passe</label>
+        <input type="password" id="cin" name="login_password" placeholder="Votre mot de passe securise" autocomplete="new-password" />
+      </div>
+      <button type="submit" class="btn" id="loginBtn">Se connecter</button>
+      <div class="error-msg" id="errorMsg"></div>
+    </form>
+
+    <div class="footer-link">
+      Premiere visite ? <a href="/register">Creer un compte</a>
+    </div>
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isLight = html.getAttribute('data-theme') === 'light';
+      html.setAttribute('data-theme', isLight ? 'dark' : 'light');
+      document.getElementById('themeLabel').textContent = isLight ? 'Sombre' : 'Clair';
+      localStorage.setItem('theme', isLight ? 'dark' : 'light');
+    }
+    const saved = localStorage.getItem('theme');
+    if (saved) {
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('themeLabel').textContent = saved === 'light' ? 'Clair' : 'Sombre';
+    }
+
+    window.addEventListener('load', () => {
+      document.getElementById('apogee').value = '';
+      document.getElementById('cin').value = '';
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const identifiant = document.getElementById('apogee').value.trim();
+      const password = document.getElementById('cin').value.trim();
+      const err = document.getElementById('errorMsg');
+      const btn = document.getElementById('loginBtn');
+
+      if (!identifiant || !password) {
+        err.style.display = 'block';
+        err.textContent = 'Veuillez renseigner votre email institutionnel et votre mot de passe.';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Connexion...';
+      err.style.display = 'none';
+
+      try {
+        const resp = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identifiant, password })
+        });
+        const data = await resp.json();
+        if (data.success) {
+          window.location.href = '/chat';
+        } else {
+          err.style.display = 'block';
+          err.textContent = data.message || 'Connexion impossible.';
+        }
+      } catch {
+        err.style.display = 'block';
+        err.textContent = 'Erreur de connexion au serveur.';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Se connecter';
+      }
+    });
+  </script>
+</body>
+</html>

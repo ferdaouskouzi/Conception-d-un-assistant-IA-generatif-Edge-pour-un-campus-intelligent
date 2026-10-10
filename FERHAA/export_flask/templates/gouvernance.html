@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FERHAA — Gouvernance IA</title>
+  <style>
+    :root {
+      --bg:         #0a0a0a;
+      --sidebar:    #0f0f0f;
+      --card:       #161616;
+      --card2:      #1a1a1a;
+      --border:     #222222;
+      --gold:       #f5a623;
+      --gold-dim:   rgba(245,166,35,.12);
+      --blue:       #4a8ef5;
+      --blue-dim:   rgba(74,142,245,.12);
+      --green:      #4caf50;
+      --green-dim:  rgba(76,175,80,.12);
+      --red:        #ff5555;
+      --red-dim:    rgba(255,85,85,.12);
+      --text:       #ffffff;
+      --text-muted: #666666;
+      --text-sub:   #999999;
+    }
+    [data-theme="light"] {
+      --bg:         #f5f0e8;
+      --sidebar:    #ede8de;
+      --card:       #ffffff;
+      --card2:      #f7f4ef;
+      --border:     #ddd8cc;
+      --text:       #111111;
+      --text-muted: #888888;
+      --text-sub:   #666666;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ── Sidebar (identique au chat) ── */
+    .sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+    }
+    .sidebar-brand {
+      padding: 18px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-logo {
+      width: 32px; height: 32px;
+      background: var(--gold-dim);
+      border: 1px solid var(--gold);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+    .nav-brand { font-size: .9rem; font-weight: 800; letter-spacing: 1px; }
+    .nav-brand span { color: var(--gold); }
+
+    .side-nav { flex: 1; padding: 12px 8px; }
+    .side-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px; border-radius: 8px;
+      color: var(--text-sub); font-size: .84rem;
+      cursor: pointer; text-decoration: none;
+      transition: background .15s, color .15s;
+      margin-bottom: 2px;
+    }
+    .side-link:hover { background: var(--card2); color: var(--text); }
+    .side-link.active { background: var(--gold-dim); color: var(--gold); font-weight: 600; }
+    .side-link .icon { width: 18px; text-align: center; font-size: .9rem; }
+
+    .sidebar-bottom {
+      border-top: 1px solid var(--border);
+      padding: 10px 8px;
+    }
+    .user-card {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px; border-radius: 8px; background: var(--card2);
+    }
+    .user-avatar {
+      width: 32px; height: 32px;
+      background: var(--gold); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: .85rem; color: #000; flex-shrink: 0;
+    }
+    .user-info .name { font-size: .83rem; font-weight: 600; }
+    .user-info .meta { font-size: .7rem; color: var(--text-muted); }
+
+    /* ── Main ── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    /* Navbar */
+    .navbar {
+      height: 54px;
+      background: var(--sidebar);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px;
+      position: sticky; top: 0; z-index: 10;
+      flex-shrink: 0;
+    }
+    .navbar h1 { font-size: .95rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .navbar h1 .icon { font-size: 1.1rem; }
+    .theme-toggle {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 999px; padding: 4px 10px;
+      cursor: pointer; color: var(--text-muted); font-size: .75rem; user-select: none;
+    }
+    .toggle-sw {
+      width: 28px; height: 16px; background: var(--gold);
+      border-radius: 999px; position: relative;
+    }
+    .toggle-sw::after {
+      content: ''; width: 10px; height: 10px; background: #fff;
+      border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: left .2s;
+    }
+    [data-theme="light"] .toggle-sw::after { left: 15px; }
+
+    /* Content */
+    .content {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 36px 28px 60px;
+      width: 100%;
+    }
+
+    .page-header {
+      margin-bottom: 36px;
+    }
+    .page-header h2 {
+      font-size: 1.5rem; font-weight: 800; margin-bottom: 6px;
+    }
+    .page-header h2 span { color: var(--gold); }
+    .page-header p { color: var(--text-muted); font-size: .88rem; }
+
+    /* Section */
+    .section { margin-bottom: 28px; }
+    .section-title {
+      font-size: .72rem; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--text-muted);
+      margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    }
+    .section-title::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* Cards */
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; margin-bottom: 12px; }
+    .card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .card-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+    /* Stat card */
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 18px 20px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .stat-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;
+    }
+    .stat-icon.gold  { background: var(--gold-dim);  }
+    .stat-icon.blue  { background: var(--blue-dim);  }
+    .stat-icon.green { background: var(--green-dim); }
+    .stat-icon.red   { background: var(--red-dim);   }
+    .stat-val { font-size: 1.3rem; font-weight: 800; }
+    .stat-label { font-size: .75rem; color: var(--text-muted); margin-top: 2px; }
+
+    /* Info block */
+    .info-block { display: flex; gap: 14px; align-items: flex-start; }
+    .info-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+    .info-title { font-size: .9rem; font-weight: 600; margin-bottom: 4px; }
+    .info-text { font-size: .83rem; color: var(--text-sub); line-height: 1.6; }
+
+    /* Badge */
+    .badge {
+      display: inline-block; font-size: .68rem; font-weight: 700;
+      padding: 2px 8px; border-radius: 999px; letter-spacing: .5px;
+    }
+    .badge.green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(76,175,80,.3); }
+    .badge.gold  { background: var(--gold-dim);  color: var(--gold);  border: 1px solid rgba(245,166,35,.3); }
+    .badge.blue  { background: var(--blue-dim);  color: var(--blue);  border: 1px solid rgba(74,142,245,.3); }
+    .badge.red   { background: var(--red-dim);   color: var(--red);   border: 1px solid rgba(255,85,85,.3); }
+
+    /* Table droits */
+    .rights-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    .rights-table th {
+      text-align: left; padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted); font-size: .72rem; letter-spacing: 1px; text-transform: uppercase;
+    }
+    .rights-table td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .rights-table tr:last-child td { border-bottom: none; }
+    .rights-table td:first-child { font-weight: 600; white-space: nowrap; }
+
+    /* Données collectées */
+    .data-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: .84rem;
+    }
+    .data-row:last-child { border-bottom: none; }
+    .data-name { font-weight: 600; }
+    .data-desc { color: var(--text-muted); font-size: .78rem; margin-top: 2px; }
+
+    /* Timeline */
+    .timeline { position: relative; padding-left: 24px; }
+    .timeline::before {
+      content: ''; position: absolute; left: 7px; top: 0; bottom: 0;
+      width: 2px; background: var(--border);
+    }
+    .tl-item { position: relative; margin-bottom: 18px; }
+    .tl-dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--gold); border: 2px solid var(--bg);
+      position: absolute; left: -20px; top: 2px;
+    }
+    .tl-title { font-size: .88rem; font-weight: 600; margin-bottom: 2px; }
+    .tl-text { font-size: .8rem; color: var(--text-muted); line-height: 1.5; }
+
+    .divider { height: 1px; background: var(--border); margin: 8px 0 20px; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════ SIDEBAR ═══════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="nav-logo">ف</div>
+    <span class="nav-brand">FERHAA<span>AI</span></span>
+  </div>
+  <nav class="side-nav">
+    <a class="side-link" href="/chat"><span class="icon">💬</span> Chat</a>
+    <a class="side-link" href="/profile"><span class="icon">👤</span> Mon profil</a>
+    <a class="side-link" href="/historique"><span class="icon">▦</span> Historique</a>
+    <a class="side-link active" href="/gouvernance"><span class="icon">🛡</span> Gouvernance IA</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <a class="side-link" href="#" onclick="logout()" style="margin-bottom:8px;">
+      <span class="icon">⎋</span> Déconnexion
+    </a>
+    <div class="user-card">
+      <div class="user-avatar" id="sideAvatar">H</div>
+      <div class="user-info">
+        <div class="name" id="sideNom">—</div>
+        <div class="meta" id="sideMeta">—</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════ MAIN ═══════ -->
+<div class="main">
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <h1><span class="icon">🛡</span> Gouvernance IA &amp; RGPD</h1>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <span class="badge green" id="govComplianceBadge">Conforme RGPD</span>
+      <div class="theme-toggle" onclick="toggleTheme()">
+        <span>🌙</span><div class="toggle-sw"></div>
+        <span id="themeLabel">Sombre</span>
+      </div>
+    </div>
+  </nav>
+
+  <div class="content">
+
+    <div class="page-header">
+      <h2>Gouvernance <span>FERHAA</span></h2>
+      <p>Transparence sur le fonctionnement de l'IA, les données collectées et vos droits en tant qu'étudiant·e.</p>
+    </div>
+
+    <!-- Stats rapides -->
+    <div class="section">
+      <div class="section-title">Vue d'ensemble</div>
+      <div class="card-row">
+        <div class="stat-card">
+          <div class="stat-icon gold">🤖</div>
+          <div>
+            <div class="stat-val" id="govPrimaryModel">-</div>
+            <div class="stat-label" id="govPrimaryProvider">Modèle IA principal</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue">🇲🇦</div>
+          <div>
+            <div class="stat-val" id="govStorageScope">Local</div>
+            <div class="stat-label" id="govStorageLabel">Données hébergées localement</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">✅</div>
+          <div>
+            <div class="stat-val" id="govRgpdValue">-</div>
+            <div class="stat-label" id="govRgpdLabel">Garde-fous de confidentialité</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red">🚫</div>
+          <div>
+            <div class="stat-val" id="govThirdPartyValue">0</div>
+            <div class="stat-label" id="govThirdPartyLabel">Données revendues à des tiers</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fonctionnement -->
+    <div class="section">
+      <div class="section-title">Comment fonctionne FERHAA</div>
+      <div class="card">
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-title">1. Vous posez une question</div>
+            <div class="tl-text">Votre message est d'abord analysé par le filtre RGPD local — aucune donnée personnelle (CIN, email, téléphone) ne doit être transmise.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-title">2. Vérification du cache local</div>
+            <div class="tl-text">Si la question a déjà été posée, la réponse est renvoyée instantanément depuis la base locale (<code>cache.db</code>) sans appel réseau.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-title">3. Appel à l'IA Groq Cloud</div>
+            <div class="tl-text">La question et un contexte académique (filière, année) sont envoyés au modèle <strong>Llama 3 8B</strong> via l'API Groq. Aucune donnée nominative n'est incluse.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-title">4. Mode dégradé (si Groq indisponible)</div>
+            <div class="tl-text">FERHAA bascule automatiquement sur un modèle local via Ollama — la réponse reste disponible, même hors connexion.</div>
+          </div>
+          <div class="tl-item" style="margin-bottom:0">
+            <div class="tl-dot"></div>
+            <div class="tl-title">5. Journalisation locale</div>
+            <div class="tl-text">Chaque échange est enregistré dans <code>donnees_locales.db</code> sur votre machine uniquement (question, réponse, source, durée).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Données collectées -->
+    <div class="section">
+      <div class="section-title">Données collectées</div>
+      <div class="card">
+        <div class="data-row">
+          <div>
+            <div class="data-name">Numéro Apogée &amp; CIN</div>
+            <div class="data-desc">Identifiants d'authentification — stockés localement, jamais transmis à l'IA.</div>
+          </div>
+          <span class="badge gold">Local uniquement</span>
+        </div>
+        <div class="data-row">
+          <div>
+            <div class="data-name">Prénom, filière, année</div>
+            <div class="data-desc">Utilisés pour personnaliser les réponses de FERHAA (contexte académique).</div>
+          </div>
+          <span class="badge gold">Local + contexte IA</span>
+        </div>
+        <div class="data-row">
+          <div>
+            <div class="data-name">Historique des questions</div>
+            <div class="data-desc">Stocké dans <code>donnees_locales.db</code> sur votre machine — non transmis.</div>
+          </div>
+          <span class="badge gold">Local uniquement</span>
+        </div>
+        <div class="data-row">
+          <div>
+            <div class="data-name">Email &amp; téléphone</div>
+            <div class="data-desc">Facultatifs — jamais transmis à des tiers ni à l'IA.</div>
+          </div>
+          <span class="badge green">Optionnel &amp; local</span>
+        </div>
+        <div class="data-row">
+          <div>
+            <div class="data-name">Données comportementales / cookies de tracking</div>
+            <div class="data-desc">FERHAA ne collecte aucune donnée de navigation ou de tracking.</div>
+          </div>
+          <span class="badge red">Non collecté</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Audit technique</div>
+      <div class="card-row3">
+        <div class="card">
+          <div class="info-title">Cache local</div>
+          <div class="info-text">
+            <strong id="govCacheEntries">0</strong> entrées<br>
+            <span id="govCachePath">backend/data/cache.db</span><br>
+            <span id="govCacheSize">0 Ko</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="info-title">Historique local</div>
+          <div class="info-text">
+            <strong id="govHistoryEntries">0</strong> échanges<br>
+            <span id="govHistoryPath">backend/data/donnees_locales.db</span><br>
+            <span id="govHistorySize">0 Ko</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="info-title">Comptes locaux</div>
+          <div class="info-text">
+            <strong id="govUsersEntries">0</strong> utilisateur(s)<br>
+            <span id="govUsersPath">backend/data/users.json</span><br>
+            <span id="govUsersSize">0 Ko</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Droits -->
+    <div class="section">
+      <div class="section-title">Vos droits (RGPD)</div>
+      <div class="card">
+        <table class="rights-table">
+          <thead>
+            <tr>
+              <th>Droit</th>
+              <th>Description</th>
+              <th>Comment l'exercer</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>📋 Accès</td>
+              <td>Consulter toutes vos données stockées.</td>
+              <td>Page <a href="/historique" style="color:var(--gold);">Historique</a> ou demande à l'admin.</td>
+            </tr>
+            <tr>
+              <td>✏️ Rectification</td>
+              <td>Corriger vos informations personnelles.</td>
+              <td>Page <a href="/profile" style="color:var(--gold);">Mon profil</a>.</td>
+            </tr>
+            <tr>
+              <td>🗑️ Suppression</td>
+              <td>Supprimer votre compte et toutes vos données.</td>
+              <td>Contacter l'administrateur FERHAA.</td>
+            </tr>
+            <tr>
+              <td>📤 Portabilité</td>
+              <td>Exporter vos données au format JSON.</td>
+              <td>Fonctionnalité à venir — demande admin.</td>
+            </tr>
+            <tr>
+              <td>⛔ Opposition</td>
+              <td>Refuser le traitement de vos données.</td>
+              <td>Vous pouvez cesser d'utiliser FERHAA à tout moment.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Modèles IA -->
+    <div class="section">
+      <div class="section-title">Modèles d'IA utilisés</div>
+      <div class="card-row">
+        <div class="card">
+          <div class="info-block">
+            <div class="info-icon">☁️</div>
+            <div>
+              <div class="info-title"><span id="govPrimaryModelCard">-</span> <span class="badge blue">Principal</span></div>
+              <div class="info-text">Fournisseur : <strong id="govPrimaryProviderCard">-</strong><br>Utilisé pour les réponses en temps réel via internet.<br><span id="govPrimaryConfigured">Configuration inconnue.</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="info-block">
+            <div class="info-icon">💻</div>
+            <div>
+              <div class="info-title"><span id="govFallbackModelCard">-</span> <span class="badge gold">Dégradé</span></div>
+              <div class="info-text">Fournisseur : <strong id="govFallbackProviderCard">-</strong><br>Utilisé hors connexion, tourne entièrement sur votre machine.<br><span id="govFallbackMode">Aucune donnée ne quitte votre poste.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="section">
+      <div class="section-title">Contact &amp; DPO</div>
+      <div class="card">
+        <div class="info-block">
+          <div class="info-icon">📬</div>
+          <div>
+            <div class="info-title">Délégué à la Protection des Données (DPO)</div>
+            <div class="info-text">
+              Pour toute question relative à vos données personnelles ou pour exercer vos droits RGPD, contactez l'équipe FERHAA via l'administration de l'ENSABM.<br><br>
+              <span class="badge gold" id="govVersionBadge">Version FERHAA Edge</span>&nbsp;
+              <span class="badge blue" id="govCampusBadge">ENSABM</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Thème
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    document.getElementById('themeLabel').textContent = next === 'light' ? 'Clair' : 'Sombre';
+    localStorage.setItem('theme', next);
+  }
+  const saved = localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeLabel').textContent = saved === 'light' ? 'Clair' : 'Sombre';
+
+  // User info
+  fetch('/api/me').then(r => r.ok ? r.json() : null).then(user => {
+    if (!user) { window.location.href = '/'; return; }
+    const ini = (user.prenom || 'U')[0].toUpperCase();
+    document.getElementById('sideAvatar').textContent = ini;
+    document.getElementById('sideNom').textContent    = user.prenom || '—';
+    document.getElementById('sideMeta').textContent   = `${user.filiere || '—'} · ${user.annee || '—'}`;
+  });
+
+  fetch('/api/gouvernance')
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      if (!data) return;
+
+      const primary = data.models?.primary || {};
+      const fallback = data.models?.fallback || {};
+      const storage = data.storage || {};
+      const privacy = data.privacy || {};
+      const traffic = data.traffic || {};
+      const app = data.app || {};
+
+      document.getElementById('govPrimaryModel').textContent = primary.name || '-';
+      document.getElementById('govPrimaryProvider').textContent = `Modèle principal (${primary.provider || 'provider inconnu'})`;
+      document.getElementById('govStorageScope').textContent = 'Local';
+      document.getElementById('govStorageLabel').textContent = `${storage.history_db?.entries || 0} échanges journalisés localement`;
+      document.getElementById('govRgpdValue').textContent = `${privacy.rgpd_guard_patterns || 0} règles`;
+      document.getElementById('govRgpdLabel').textContent = 'Filtres RGPD actifs avant appel modèle';
+      document.getElementById('govThirdPartyValue').textContent = privacy.third_party_sale ? 'Oui' : '0';
+      document.getElementById('govThirdPartyLabel').textContent = privacy.third_party_sale ? 'Partage tiers activé' : 'Données revendues à des tiers';
+      document.getElementById('govComplianceBadge').textContent = privacy.tracking_enabled ? 'Vigilance requise' : 'Conforme RGPD';
+
+      document.getElementById('govCacheEntries').textContent = storage.cache_db?.entries || 0;
+      document.getElementById('govCachePath').textContent = storage.cache_db?.path || '-';
+      document.getElementById('govCacheSize').textContent = `${storage.cache_db?.size_kb || 0} Ko`;
+      document.getElementById('govHistoryEntries').textContent = storage.history_db?.entries || 0;
+      document.getElementById('govHistoryPath').textContent = storage.history_db?.path || '-';
+      document.getElementById('govHistorySize').textContent = `${storage.history_db?.size_kb || 0} Ko`;
+      document.getElementById('govUsersEntries').textContent = storage.users_file?.entries || 0;
+      document.getElementById('govUsersPath').textContent = storage.users_file?.path || '-';
+      document.getElementById('govUsersSize').textContent = `${storage.users_file?.size_kb || 0} Ko`;
+
+      document.getElementById('govPrimaryModelCard').textContent = primary.name || '-';
+      document.getElementById('govPrimaryProviderCard').textContent = primary.provider || '-';
+      document.getElementById('govPrimaryConfigured').textContent = primary.configured
+        ? `Configuration active. ${traffic.cloud_answers || 0} réponses générées via le cloud.`
+        : 'Clé API absente: le mode cloud ne pourra pas répondre.';
+      document.getElementById('govFallbackModelCard').textContent = fallback.name || '-';
+      document.getElementById('govFallbackProviderCard').textContent = fallback.provider || '-';
+      document.getElementById('govFallbackMode').textContent = `${traffic.local_answers || 0} réponses servies en mode local ou secours.`;
+
+      document.getElementById('govVersionBadge').textContent = `Version ${app.name || 'FERHAA'} v${app.version || '1.0'}`;
+      document.getElementById('govCampusBadge').textContent = `${app.campus || 'ENSABM'} · latence moyenne ${traffic.average_latency_seconds || 0}s`;
+    });
+
+  async function logout() {
+    await fetch('/api/logout', { method: 'POST' });
+    window.location.href = '/';
+  }
+</script>
+</body>
+</html>

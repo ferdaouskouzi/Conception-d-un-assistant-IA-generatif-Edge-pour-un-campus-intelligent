@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FERHAA - Dashboard Admin</title>
+  <style>
+    :root {
+      --bg: #0a0a0a; --panel: #151515; --panel-soft: #1b1b1b; --border: #272727;
+      --gold: #f5a623; --gold-soft: rgba(245,166,35,.14); --gold-dim: rgba(245,166,35,.08);
+      --blue: #4a8ef5; --blue-soft: rgba(74,142,245,.12);
+      --red: #ff6969; --red-soft: rgba(255,105,105,.12);
+      --green: #4ecb71; --green-soft: rgba(78,203,113,.12);
+      --text: #ffffff; --text-muted: #8b8b8b; --text-soft: #c0c0c0;
+    }
+    [data-theme="light"] {
+      --bg:#f6f1e8; --panel:#fff; --panel-soft:#f7f2ea; --border:#ddd4c7;
+      --text:#141414; --text-muted:#726d67; --text-soft:#444;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:"Segoe UI",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+    .page{max-width:1380px;margin:0 auto;padding:24px 28px;}
+
+    /* Topbar */
+    .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+    .title h1{font-size:1.75rem;margin-bottom:4px;}
+    .title h1 span{color:var(--gold);}
+    .title p{color:var(--text-muted);font-size:.88rem;}
+    .role-badge{display:inline-block;padding:4px 12px;border-radius:999px;background:var(--gold-soft);color:var(--gold);font-size:.78rem;font-weight:700;margin-left:10px;vertical-align:middle;}
+    .actions{display:flex;gap:8px;align-items:center;}
+    .btn{border:1px solid var(--border);background:var(--panel);color:var(--text);padding:9px 14px;border-radius:11px;cursor:pointer;text-decoration:none;font-size:.85rem;}
+    .btn:hover{border-color:var(--gold);}
+    .btn-gold{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700;}
+    .btn-red{background:var(--red-soft);color:var(--red);border-color:rgba(255,105,105,.4);}
+
+    /* Stat cards */
+    .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;}
+    .stat{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;}
+    .stat .val{font-size:1.5rem;font-weight:800;}
+    .stat .lbl{color:var(--text-muted);margin-top:5px;font-size:.8rem;}
+    .stat .sub{color:var(--text-muted);font-size:.75rem;margin-top:2px;}
+    .stat.alert .val{color:var(--red);}
+    .stat.alert{border-color:rgba(255,105,105,.35);}
+    .stat.ok .val{color:var(--green);}
+
+    /* Tabs */
+    .tabs{display:flex;gap:4px;margin-bottom:0;border-bottom:1px solid var(--border);padding-bottom:0;}
+    .tab-btn{padding:9px 18px;border-radius:10px 10px 0 0;border:1px solid transparent;border-bottom:none;
+             background:transparent;color:var(--text-muted);cursor:pointer;font-size:.88rem;font-weight:600;
+             position:relative;bottom:-1px;transition:color .15s;}
+    .tab-btn.active{background:var(--panel);border-color:var(--border);color:var(--text);border-bottom-color:var(--panel);}
+    .tab-btn .badge{display:inline-block;background:var(--red);color:#fff;font-size:.68rem;font-weight:800;
+                    border-radius:999px;padding:1px 6px;margin-left:6px;vertical-align:middle;}
+    .tab-content{display:none;padding-top:18px;}
+    .tab-content.active{display:block;}
+
+    /* Layout */
+    .g2{display:grid;grid-template-columns:1.3fr .7fr;gap:14px;}
+    .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+    .g2e{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .mt{margin-top:14px;}
+    .panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px;}
+    .panel h2{font-size:.95rem;margin-bottom:12px;font-weight:700;}
+
+    /* Tables */
+    table{width:100%;border-collapse:collapse;}
+    th,td{text-align:left;padding:10px 9px;border-bottom:1px solid var(--border);vertical-align:top;font-size:.87rem;}
+    th{color:var(--gold);font-size:.75rem;text-transform:uppercase;letter-spacing:.8px;}
+    tr:last-child td{border-bottom:none;}
+
+    /* Pills */
+    .pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:.74rem;font-weight:700;}
+    .pill-gold{background:var(--gold-soft);color:var(--gold);}
+    .pill-blue{background:var(--blue-soft);color:var(--blue);}
+    .pill-red{background:var(--red-soft);color:var(--red);}
+    .pill-green{background:var(--green-soft);color:var(--green);}
+    .pill-gray{background:var(--panel-soft);color:var(--text-muted);}
+    .sev-warning{color:var(--gold);}
+    .sev-critical{color:var(--red);}
+    .meta{color:var(--text-muted);font-size:.78rem;}
+
+    /* Charts */
+    .chart-7d{display:flex;align-items:flex-end;gap:6px;height:90px;margin-top:12px;}
+    .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end;}
+    .bar{width:100%;background:var(--gold);border-radius:3px 3px 0 0;min-height:3px;}
+    .bar.blue{background:var(--blue);}
+    .bar-label{font-size:.62rem;color:var(--text-muted);white-space:nowrap;}
+    .bar-val{font-size:.68rem;color:var(--gold);font-weight:700;}
+
+    .src-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+    .src-name{font-size:.8rem;width:150px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .src-track{flex:1;height:8px;background:var(--panel-soft);border-radius:999px;overflow:hidden;}
+    .src-fill{height:100%;border-radius:999px;background:var(--gold);transition:width .5s;}
+    .src-fill.blue{background:var(--blue);}
+    .src-fill.green{background:var(--green);}
+    .src-cnt{font-size:.78rem;color:var(--text-muted);width:32px;text-align:right;flex-shrink:0;}
+
+    /* Heatmap */
+    .heatmap{display:grid;grid-template-columns:repeat(24,1fr);gap:2px;margin-top:10px;}
+    .heat-cell{aspect-ratio:1;border-radius:2px;background:var(--panel-soft);}
+
+    /* Toggles */
+    .toggle-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+    .toggle-row:last-child{border-bottom:none;}
+    .toggle-info strong{display:block;font-size:.88rem;}
+    .toggle-info span{font-size:.78rem;color:var(--text-muted);}
+    .toggle-sw{position:relative;width:40px;height:22px;flex-shrink:0;}
+    .toggle-sw input{opacity:0;width:0;height:0;}
+    .toggle-sw .slider{position:absolute;inset:0;background:var(--border);border-radius:999px;cursor:pointer;transition:background .2s;}
+    .toggle-sw input:checked+.slider{background:var(--gold);}
+    .toggle-sw .slider::before{content:"";position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:transform .2s;}
+    .toggle-sw input:checked+.slider::before{transform:translateX(18px);}
+
+    /* User cards */
+    .user-card-sm{padding:10px;border:1px solid var(--border);background:var(--panel-soft);border-radius:12px;margin-bottom:8px;}
+    .user-card-sm strong{display:block;margin-bottom:3px;font-size:.9rem;}
+    .directory-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;}
+    .directory-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px;}
+    .directory-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:12px;}
+    .directory-ident{display:flex;gap:10px;align-items:center;}
+    .directory-avatar{width:42px;height:42px;border-radius:12px;background:var(--gold-soft);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:800;}
+    .directory-name{font-weight:700;}
+    .directory-role{font-size:.77rem;color:var(--text-muted);margin-top:2px;}
+    .directory-meta{display:grid;gap:7px;margin:12px 0;}
+    .directory-meta div{font-size:.83rem;color:var(--text-soft);}
+    .directory-meta strong{color:var(--text);font-weight:600;}
+    .directory-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px;}
+    .directory-note{font-size:.76rem;color:var(--text-muted);line-height:1.5;}
+    .hidden{display:none !important;}
+
+    /* Réclamations */
+    .rec-filters{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
+    .rec-filter{padding:6px 12px;border-radius:999px;border:1px solid var(--border);background:var(--panel-soft);
+                color:var(--text-soft);cursor:pointer;font-size:.83rem;}
+    .rec-filter.active{background:var(--gold);border-color:var(--gold);color:#000;font-weight:700;}
+    .rec-detail{max-width:240px;font-size:.82rem;white-space:pre-wrap;}
+    .overdue{border-left:3px solid var(--red);}
+
+    /* Modal */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;z-index:100;}
+    .modal-overlay.hidden{display:none;}
+    .modal{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:24px;width:min(560px,94vw);}
+    .modal h3{font-size:1rem;margin-bottom:14px;}
+    .modal label{display:block;font-size:.8rem;color:var(--text-muted);margin-bottom:5px;}
+    .modal select,.modal textarea,.modal input[type=text],.modal input[type=email],.modal input[type=password]{
+      width:100%;background:var(--panel-soft);border:1px solid var(--border);border-radius:10px;
+      color:var(--text);padding:9px 11px;font-size:.88rem;margin-bottom:12px;}
+    .modal textarea{min-height:90px;resize:vertical;}
+    .modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:6px;}
+
+    /* Alert banner */
+    .banner{padding:12px 16px;border-radius:12px;font-size:.88rem;margin-bottom:14px;}
+    .banner.ok{background:var(--green-soft);border:1px solid rgba(78,203,113,.3);color:var(--green);}
+    .banner.warn{background:var(--gold-soft);border:1px solid rgba(245,166,35,.35);color:var(--gold);}
+    .banner.err{background:var(--red-soft);border:1px solid rgba(255,105,105,.35);color:var(--red);}
+
+    /* Responsive */
+    @media(max-width:1100px){.stats{grid-template-columns:repeat(3,1fr);}.g2,.g3,.g2e{grid-template-columns:1fr;}}
+    @media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr);}.tabs{overflow-x:auto;}}
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="title">
+      <h1>Dashboard <span>Admin</span><span class="role-badge" id="roleBadge">—</span></h1>
+      <p id="roleDesc">Chargement du tableau de bord...</p>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="refresh()">Actualiser</button>
+      <a class="btn" href="/chat">Retour au chat</a>
+    </div>
+  </div>
+
+  <!-- Stat cards -->
+  <div class="stats" id="statCards">
+    <div class="stat"><div class="val" id="s0">—</div><div class="lbl" id="s0l">Questions totales</div></div>
+    <div class="stat"><div class="val" id="s1">—</div><div class="lbl" id="s1l">Cloud</div></div>
+    <div class="stat"><div class="val" id="s2">—</div><div class="lbl" id="s2l">Edge / Local</div></div>
+    <div class="stat"><div class="val" id="s3">—</div><div class="lbl" id="s3l">Comptes actifs</div><div class="sub" id="s3s"></div></div>
+    <div class="stat alert" id="s4card"><div class="val" id="s4">—</div><div class="lbl" id="s4l">En attente</div></div>
+  </div>
+
+  <!-- Tabs (remplis dynamiquement selon le rôle) -->
+  <div class="tabs" id="tabsBar"></div>
+
+  <!-- Contenus -->
+  <div id="tabsContent"></div>
+
+</div>
+
+<!-- Modal réponse réclamation -->
+<div class="modal-overlay hidden" id="recModal">
+  <div class="modal">
+    <h3>Répondre à la réclamation <span id="recModalId"></span></h3>
+    <label>Decision pedagogique</label>
+    <select id="recModalDecision">
+      <option value="reclamation_fondee">Reclamation fondee</option>
+      <option value="a_surveiller">A surveiller</option>
+      <option value="reclamation_non_fondee">Reclamation non fondee</option>
+    </select>
+    <label style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+      <input type="checkbox" id="recModalImprove" style="width:auto;margin:0;" />
+      <span>Demander une amelioration progressive du modele ou du corpus</span>
+    </label>
+    <textarea id="recModalText" placeholder="Votre réponse à l'étudiant..."></textarea>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeRecModal()">Annuler</button>
+      <button class="btn btn-gold" onclick="submitRecReponse()">Envoyer la réponse</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal créer compte -->
+<div class="modal-overlay hidden" id="createUserModal">
+  <div class="modal">
+    <h3>Créer un compte</h3>
+    <label>Email</label><input type="email" id="cuEmail" placeholder="prenom.nom@ensabm.ac.ma" />
+    <label>Mot de passe</label><input type="password" id="cuPwd" placeholder="Mot de passe..." />
+    <label>Prénom</label><input type="text" id="cuPrenom" />
+    <label>Nom</label><input type="text" id="cuNom" />
+    <label>Rôle</label>
+    <select id="cuRole" onchange="syncCreateUserFields()">
+      <option value="student">Ã‰tudiant</option>
+      <option value="admin_pedagogique">Admin Pédagogique</option>
+      <option value="admin_it">Admin IT &amp; Sécurité</option>
+      <option value="super_admin">Super Admin</option>
+    </select>
+    <div id="cuDepartmentWrap" class="hidden">
+      <label>Département</label><input type="text" id="cuDepartment" placeholder="ex: IT, Pedagogie, Direction..." />
+    </div>
+    <div id="cuAcademicWrap">
+      <label>Filière</label><input type="text" id="cuFiliere" placeholder="ex: IACS, GC..." />
+      <label>Année</label><input type="text" id="cuAnnee" placeholder="ex: CI2" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="document.getElementById('createUserModal').classList.add('hidden')">Annuler</button>
+      <button class="btn btn-gold" onclick="submitCreateUser()">Créer le compte</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="courseUploadModal">
+  <div class="modal">
+    <h3>Ajouter un PDF de cours</h3>
+    <label>Fichier PDF</label>
+    <input type="file" id="coursePdfFile" accept="application/pdf" />
+    <p class="meta">Le document sera indexe localement pour enrichir les reponses pedagogiques quand des extraits pertinents sont trouves.</p>
+    <div class="modal-footer">
+      <button class="btn" onclick="document.getElementById('courseUploadModal').classList.add('hidden')">Annuler</button>
+      <button class="btn btn-gold" onclick="submitCourseUpload()">Importer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal confirmation purge -->
+<div class="modal-overlay hidden" id="purgeModal">
+  <div class="modal">
+    <h3>Confirmer la purge des logs</h3>
+    <p style="color:var(--text-muted);margin-bottom:14px;" id="purgeInfo">Chargement...</p>
+    <div class="modal-footer">
+      <button class="btn" onclick="document.getElementById('purgeModal').classList.add('hidden')">Annuler</button>
+      <button class="btn btn-red" onclick="executePurge()">Purger définitivement</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   Ã‰TAT GLOBAL
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+let _user = null;
+let _role = '';
+let _currentRecId = null;
+let _refreshTimer = null;
+function isAdminRole(role){ return ['admin_it','admin_pedagogique','super_admin'].includes(role||''); }
+
+const ROLE_LABELS = {
+  student:'Ã‰tudiant', admin_it:'Admin IT & Sécurité', admin_pedagogique:'Admin Pédagogique',
+  super_admin:'Super Admin',
+};
+
+/* â”€â”€ Utilitaires â”€â”€ */
+function esc(v){ return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function trunc(v,n=120){ const s=String(v||''); return s.length>n?s.slice(0,n)+'...':s; }
+async function api(url){ const r=await fetch(url); return r.ok?r.json():null; }
+async function put(url,body){ const r=await fetch(url,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); return r.ok?r.json():null; }
+async function del(url){ const r=await fetch(url,{method:'DELETE'}); return r.ok?r.json():null; }
+async function post(url,body){ const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); return [r.ok,await r.json().catch(()=>({}))]; }
+
+function setNotice(msg, type='ok'){
+  let el = document.getElementById('_notice');
+  if(!el){ el=document.createElement('div'); el.id='_notice'; el.style.marginTop='10px'; document.querySelector('.page').insertBefore(el,document.getElementById('tabsContent')); }
+  el.className=`banner ${type}`;
+  el.textContent=msg;
+  setTimeout(()=>el.textContent='',4000);
+}
+
+function syncCreateUserFields(){
+  const role = document.getElementById('cuRole')?.value || 'student';
+  const admin = isAdminRole(role);
+  document.getElementById('cuDepartmentWrap')?.classList.toggle('hidden', !admin);
+  document.getElementById('cuAcademicWrap')?.classList.toggle('hidden', admin);
+  if(admin){
+    if(document.getElementById('cuFiliere')) document.getElementById('cuFiliere').value = '';
+    if(document.getElementById('cuAnnee')) document.getElementById('cuAnnee').value = '';
+  } else if(document.getElementById('cuDepartment')) {
+    document.getElementById('cuDepartment').value = '';
+  }
+}
+
+/* â”€â”€ Tabs engine â”€â”€ */
+function buildTabs(tabs){
+  const bar = document.getElementById('tabsBar');
+  const cont = document.getElementById('tabsContent');
+  bar.innerHTML = tabs.map((t,i)=>`
+    <button class="tab-btn ${i===0?'active':''}" data-tab="${t.id}">
+      ${esc(t.label)}${t.badge!=null?`<span class="badge" id="badge_${t.id}">${t.badge>0?t.badge:''}</span>`:''}
+    </button>`).join('');
+  cont.innerHTML = tabs.map((t,i)=>`<div class="tab-content ${i===0?'active':''}" id="tab_${t.id}">${t.html}</div>`).join('');
+  bar.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      bar.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      cont.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab_'+btn.dataset.tab).classList.add('active');
+      if(btn.dataset.tab==='stats') loadStats();
+      if(btn.dataset.tab==='corpus') loadCourseMaterials();
+      if(btn.dataset.tab==='reclamations') loadReclamations();
+      if(btn.dataset.tab==='comptes') loadComptes();
+      if(btn.dataset.tab==='super') loadSuper();
+    });
+  });
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   INIT
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+async function init(){
+  const me = await api('/api/me');
+  if(!me){ window.location.href='/'; return; }
+  _user = me; _role = me.role;
+
+  document.getElementById('roleBadge').textContent = ROLE_LABELS[_role]||_role;
+
+  if(_role==='admin_it')          initIT();
+  else if(_role==='admin_pedagogique') initPedagogique();
+  else if(_role==='super_admin')       initSuperAdmin();
+  else{ document.body.innerHTML='<div class="page"><div class="panel">Accès refusé.</div></div>'; }
+
+  // RafraÃ®chissement auto toutes les 60s
+  _refreshTimer = setInterval(()=>refresh(), 60000);
+}
+
+function refresh(){
+  if(_role==='admin_it'){
+    loadITStats();
+    loadComptes();
+  } else if(_role==='admin_pedagogique'){
+    loadPedaStats();
+    loadCourseMaterials();
+    loadReclamations();
+  } else if(_role==='super_admin'){
+    loadSuperStats();
+    loadCourseMaterials();
+    loadReclamations();
+  }
+  setNotice('Données actualisées.');
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   ADMIN IT
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+function initIT(){
+  document.getElementById('roleDesc').textContent='Contrôle de l\'infrastructure, comptes et performances techniques.';
+  buildTabs([
+    {id:'overview', label:'Vue générale', html: htmlIT_Overview()},
+    {id:'comptes',  label:'Comptes',      html: htmlIT_Comptes()},
+    {id:'audit',    label:'Audits',       html: htmlIT_Audit()},
+  ]);
+  loadITStats();
+  loadComptes();
+}
+
+function htmlIT_Overview(){ return `
+  <div class="g2">
+    <div class="panel">
+      <h2>Statut infrastructure</h2>
+      <div id="infraStatus"><div class="meta">Chargement...</div></div>
+    </div>
+    <div class="panel">
+      <h2>Activité horaire — aujourd'hui</h2>
+      <div class="chart-7d" id="chartHourly"><div class="meta" style="align-self:center">Chargement...</div></div>
+    </div>
+  </div>
+  <div class="g2 mt">
+    <div class="panel">
+      <h2>Distribution des sources IA</h2>
+      <div id="sourcesIT"><div class="meta">Chargement...</div></div>
+    </div>
+    <div class="panel">
+      <h2>Questions — 7 derniers jours</h2>
+      <div class="chart-7d" id="chart7d"><div class="meta" style="align-self:center">Chargement...</div></div>
+    </div>
+  </div>`; }
+
+function htmlIT_Stats(){ return `<div class="g2e">
+  <div class="panel"><h2>Répartition cache / cloud / edge</h2><div id="statsDetailIT" class="meta">Chargement...</div></div>
+  <div class="panel"><h2>Activité globale</h2><div id="statsGlobalIT" class="meta">Chargement...</div></div>
+</div>`; }
+
+function htmlIT_Comptes(){ return `
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <h2 style="margin:0">Repertoire utilisateurs</h2>
+    <button class="btn btn-gold" onclick="document.getElementById('createUserModal').classList.remove('hidden')">+ Créer un compte</button>
+  </div>
+  <div class="banner ok">Vue minimisee RGPD : pas de telephone, pas de CIN, pas d'historique ni de contenu de questions dans cette section.</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Role</th>
+        <th>Identifiant</th>
+        <th>Contexte</th>
+        <th>Statut</th>
+        <th>Permissions</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="comptesTable"><tr><td colspan="7" class="meta">Chargement...</td></tr></tbody>
+  </table>`; }
+
+function htmlIT_Audit(){ return `
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <h2 style="margin:0">Journal d'audit</h2>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <select id="sevFilter" onchange="filterAudit()" style="background:var(--panel-soft);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:6px 10px;font-size:.82rem;">
+        <option value="">Toutes sévérités</option>
+        <option value="info">Info</option>
+        <option value="warning">Warning</option>
+        <option value="critical">Critical</option>
+      </select>
+      <a class="btn" href="/api/admin/audit/export" target="_blank">Exporter CSV</a>
+    </div>
+  </div>
+  <table><thead><tr><th>Heure</th><th>Utilisateur</th><th>Action</th><th>Cible</th><th>Sévérité</th></tr></thead>
+  <tbody id="auditTableIT"><tr><td colspan="5" class="meta">Chargement...</td></tr></tbody></table>`; }
+
+let _auditData = [];
+function filterAudit(){
+  const sev = document.getElementById('sevFilter').value;
+  const rows = sev ? _auditData.filter(r=>r.severity===sev) : _auditData;
+  renderAuditRows(rows, 'auditTableIT');
+}
+
+function renderAuditRows(rows, tbodyId){
+  const el = document.getElementById(tbodyId); if(!el) return;
+  el.innerHTML = rows.length
+    ? rows.map(r=>`<tr>
+        <td class="meta">${esc(r.date||'-')}</td>
+        <td>${esc(r.user_identifiant||'-')}</td>
+        <td>${esc(r.action||'-')}</td>
+        <td>${esc(r.target||'-')}</td>
+        <td class="${r.severity==='critical'?'sev-critical':r.severity==='warning'?'sev-warning':''}">${esc(r.severity||'-')}</td>
+      </tr>`).join('')
+    : '<tr><td colspan="5" class="meta">Aucun log.</td></tr>';
+}
+
+async function loadITStats(){
+  const [it, infra, ollama, hours, days, src] = await Promise.all([
+    api('/api/admin/stats/it'),
+    api('/api/status/router'),
+    api('/api/status/ollama'),
+    api('/api/admin/stats/hourly'),
+    api('/api/admin/stats/7days'),
+    api('/api/admin/stats/sources'),
+  ]);
+
+  if(it){
+    document.getElementById('s0').textContent = it.total>0 ? it.total : '0';
+    document.getElementById('s0l').textContent = it.total===0 ? 'Aucune question enregistrée' : 'Questions totales';
+    document.getElementById('s1').textContent = it.cloud||0;
+    document.getElementById('s2').textContent = it.edge||0;
+    document.getElementById('s3').textContent = it.active_users||0;
+    document.getElementById('s3s').textContent = `${it.admin_count||0} admins Â· ${it.student_count||0} étudiants`;
+    const cr = it.cache_rate!=null ? it.cache_rate+'%' : '—';
+    document.getElementById('s4').textContent = cr;
+    document.getElementById('s4l').textContent = 'Taux de cache';
+    document.getElementById('s4card').className = 'stat';
+  }
+
+  // Infra status
+  const is = document.getElementById('infraStatus');
+  if(is && infra){
+    const inet = infra.internet ? '<span class="pill pill-green">En ligne</span>' : '<span class="pill pill-red">Hors ligne</span>';
+    const edg  = infra.ollama  ? '<span class="pill pill-green">Opérationnel</span>' : '<span class="pill pill-red">Hors ligne</span>';
+    is.innerHTML = `
+      <div class="src-row"><div class="src-name">Cloud Groq (llama3-8b)</div><div>${inet}</div></div>
+      <div class="src-row"><div class="src-name">Edge Ollama (llama3.2:3b)</div><div>${edg}</div></div>
+      <div class="src-row"><div class="src-name">Décision actuelle</div><div><span class="pill pill-gold">${esc(infra.decision_actuelle||'—')}</span></div></div>
+      <div class="src-row"><div class="src-name">Raison</div><div class="meta">${esc(infra.raison||'—')}</div></div>`;
+  } else if(is) is.innerHTML='<div class="meta">Service inaccessible</div>';
+
+  // Hourly
+  const chartH = document.getElementById('chartHourly');
+  if(chartH && hours){
+    const hData = hours.hours||[];
+    if(!hData.length){ chartH.innerHTML='<div class="meta" style="align-self:center">Pas d\'activité aujourd\'hui</div>'; }
+    else {
+      const mx = Math.max(...hData.map(h=>h.nb),1);
+      chartH.innerHTML = hData.map(h=>`
+        <div class="bar-col">
+          <div class="bar-val">${h.nb}</div>
+          <div class="bar blue" style="height:${Math.round(h.nb/mx*78)+4}px"></div>
+          <div class="bar-label">${h.heure}h</div>
+        </div>`).join('');
+    }
+  }
+
+  // 7days
+  const chart7 = document.getElementById('chart7d');
+  if(chart7 && days){
+    const dData = days.days||[];
+    const mx = Math.max(...dData.map(d=>d.count),1);
+    chart7.innerHTML = dData.length
+      ? dData.map(d=>`<div class="bar-col"><div class="bar-val">${d.count}</div><div class="bar" style="height:${Math.round(d.count/mx*78)+4}px"></div><div class="bar-label">${(d.date||'').slice(5)}</div></div>`).join('')
+      : '<div class="meta" style="align-self:center">Aucune donnée</div>';
+  }
+
+  // Sources
+  const srcEl = document.getElementById('sourcesIT');
+  if(srcEl && src){
+    const s = src.sources||{}; const tot = src.total||1;
+    if(!Object.keys(s).length){ srcEl.innerHTML='<div class="meta">Aucune donnée de routage disponible</div>'; }
+    else srcEl.innerHTML = Object.entries(s).map(([k,v])=>`
+      <div class="src-row">
+        <div class="src-name">${esc(k)}</div>
+        <div class="src-track"><div class="src-fill ${k==='cloud_groq'?'blue':''}" style="width:${Math.round(v/tot*100)}%"></div></div>
+        <div class="src-cnt">${v}</div>
+      </div>`).join('');
+  }
+
+  // Audit
+  const al = await api('/api/admin/dashboard');
+  if(al){ _auditData = al.audit_logs||[]; filterAudit(); }
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   GESTION DES COMPTES (IT)
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+async function loadComptes(){
+  const data = await api('/api/admin/users'); if(!data) return;
+  const tbody = document.getElementById('comptesTable'); if(!tbody) return;
+  const users = data.items||[];
+  tbody.innerHTML = users.length
+    ? users.map(u=>`<tr>
+        <td>
+          <strong>${esc(u.display_name||'Utilisateur')}</strong>
+          <div class="meta">${esc(u.email_masked||'Adresse masquee')}</div>
+        </td>
+        <td><span class="pill ${u.role==='student'?'pill-gray':'pill-gold'}">${esc(u.role_label||ROLE_LABELS[u.role]||u.role)}</span></td>
+        <td>${esc(u.special_apogee||u.identifiant||'-')}</td>
+        <td class="meta">${esc(u.is_admin ? (u.department || u.scope_summary || '-') : (u.academic_info || 'Etudiant'))}</td>
+        <td><span class="pill ${u.status==='active'?'pill-green':'pill-red'}">${u.status==='active'?'Actif':'Inactif'}</span></td>
+        <td class="meta">${u.permissions_count||0}</td>
+        <td>
+          ${u.status==='active'
+            ? `<button class="btn btn-red" style="padding:6px 10px;font-size:.78rem;" onclick="toggleStatus('${esc(u.identifiant)}','inactive')">Désactiver</button>`
+            : `<button class="btn" style="padding:6px 10px;font-size:.78rem;" onclick="toggleStatus('${esc(u.identifiant)}','active')">Activer</button>`}
+        </td>
+      </tr>`).join('')
+    : '<tr><td colspan="7" class="meta">Aucun compte.</td></tr>';
+}
+
+async function toggleStatus(id, status){
+  await put(`/api/admin/users/${encodeURIComponent(id)}`, {status});
+  setNotice(`Statut mis à jour â†’ ${status}`);
+  loadComptes();
+}
+
+async function submitCreateUser(){
+  const body = {
+    email: document.getElementById('cuEmail').value.trim(),
+    password: document.getElementById('cuPwd').value,
+    prenom: document.getElementById('cuPrenom').value.trim(),
+    nom: document.getElementById('cuNom').value.trim(),
+    role: document.getElementById('cuRole').value,
+    department: document.getElementById('cuDepartment')?.value.trim() || '',
+    filiere: document.getElementById('cuFiliere').value.trim(),
+    annee: document.getElementById('cuAnnee').value.trim(),
+  };
+  const [ok, res] = await post('/api/admin/users', body);
+  if(ok){ document.getElementById('createUserModal').classList.add('hidden'); setNotice('Compte créé.'); loadComptes(); }
+  else setNotice(res.error||'Erreur création compte','err');
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   ADMIN PÃ‰DAGOGIQUE
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+function initPedagogique(){
+  document.getElementById('roleDesc').textContent='Qualité des réponses IA, réclamations et paramètres pédagogiques.';
+  buildTabs([
+    {id:'peda_main',    label:'Vue générale', html: htmlPeda_Main()},
+    {id:'corpus',       label:'Corpus PDF',   html: htmlPeda_Corpus()},
+    {id:'reclamations', label:'Réclamations', badge:0, html: htmlRec()},
+    {id:'config_peda',  label:'Paramètres',  html: htmlPeda_Config()},
+  ]);
+  loadPedaStats();
+  loadCourseMaterials();
+  loadReclamations();
+}
+
+function htmlPeda_Main(){ return `
+  <div class="g3">
+    <div class="panel">
+      <h2>Score qualité</h2>
+      <div id="qualityScore" style="font-size:2rem;font-weight:800;margin-bottom:8px;">—</div>
+      <div class="src-track"><div id="qualityBar" class="src-fill green" style="width:0%"></div></div>
+      <div class="meta mt" id="qualityDetail">Chargement...</div>
+    </div>
+    <div class="panel">
+      <h2>Volume par filière</h2>
+      <div id="filiereChart"><div class="meta">Chargement...</div></div>
+    </div>
+    <div class="panel">
+      <h2>Feedbacks</h2>
+      <div id="feedbackChart"><div class="meta">Chargement...</div></div>
+    </div>
+  </div>`; }
+
+function htmlRec(){ return `
+  <div class="rec-filters">
+    <button class="rec-filter active" data-statut="">Toutes</button>
+    <button class="rec-filter" data-statut="ouvert">Ouvertes</button>
+    <button class="rec-filter" data-statut="resolu">Résolues</button>
+  </div>
+  <table><thead><tr><th>#</th><th>Date</th><th>Source IA</th><th>Filière</th><th>Description</th><th>Réponse IA</th><th>Decision</th><th>Statut</th><th>Action</th></tr></thead>
+  <tbody id="recTable"><tr><td colspan="9" class="meta">Chargement...</td></tr></tbody></table>`; }
+
+function htmlPeda_Config(){ return `
+  <div class="panel" style="max-width:600px;">
+    <h2>Paramètres pédagogiques</h2>
+    <div id="pedaToggles"><div class="meta">Chargement...</div></div>
+  </div>`; }
+
+function htmlPeda_Corpus(){ return `
+  <div class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;">
+      <div>
+        <h2 style="margin:0">Corpus de cours pedagogiques</h2>
+        <div class="meta">Documents PDF de reference pour aider FERHAA a repondre avec des sources academiques locales.</div>
+      </div>
+      <button class="btn btn-gold" onclick="document.getElementById('courseUploadModal').classList.remove('hidden')">+ Ajouter un PDF</button>
+    </div>
+    <div id="courseMaterialsList"><div class="meta">Chargement...</div></div>
+  </div>`; }
+
+async function loadPedaStats(){
+  const [peda, filiere] = await Promise.all([
+    api('/api/admin/stats/pedagogique'),
+    api('/api/admin/stats/filiere'),
+  ]);
+
+  if(peda){
+    document.getElementById('s0').textContent = peda.total>0 ? peda.total : '0';
+    document.getElementById('s0l').textContent = peda.total===0?'Aucune question enregistrée':'Questions totales';
+    document.getElementById('s1').textContent = peda.feedback_pos||0;
+    document.getElementById('s1l').textContent = 'Feedbacks positifs';
+    document.getElementById('s2').textContent = peda.feedback_neg||0;
+    document.getElementById('s2l').textContent = 'Feedbacks négatifs';
+    document.getElementById('s3').textContent = peda.course_materials||0;
+    document.getElementById('s3l').textContent = 'PDF de cours';
+    document.getElementById('s3s').textContent = `${peda.filieres?.length||0} filière(s) active(s)`;
+    document.getElementById('s4').textContent = peda.rec_open||0;
+    document.getElementById('s4l').textContent = 'Réclamations ouvertes';
+
+    const qs = document.getElementById('qualityScore');
+    const qb = document.getElementById('qualityBar');
+    const qd = document.getElementById('qualityDetail');
+    if(peda.quality_score!=null){
+      qs.textContent = peda.quality_score+'%';
+      qs.style.color = peda.quality_score>=70?'var(--green)':peda.quality_score>=50?'var(--gold)':'var(--red)';
+      if(qb) qb.style.width = peda.quality_score+'%';
+      if(qd) qd.textContent = `${peda.feedback_pos} positifs Â· ${peda.feedback_neg} négatifs Â· ${peda.non_evaluated} non évalués`;
+    } else {
+      qs.textContent='—';
+      if(qd) qd.textContent='Score non disponible — aucun retour reÃ§u';
+    }
+
+    const fb = document.getElementById('feedbackChart');
+    if(fb) fb.innerHTML = peda.evaluated>0
+      ? `<div class="src-row"><div class="src-name">Positifs</div><div class="src-track"><div class="src-fill green" style="width:${Math.round(peda.feedback_pos/(peda.evaluated||1)*100)}%"></div></div><div class="src-cnt">${peda.feedback_pos}</div></div>
+         <div class="src-row"><div class="src-name">Négatifs</div><div class="src-track"><div class="src-fill" style="width:${Math.round(peda.feedback_neg/(peda.evaluated||1)*100)}%;background:var(--red)"></div></div><div class="src-cnt">${peda.feedback_neg}</div></div>`
+      : '<div class="meta">Aucune évaluation disponible</div>';
+  }
+
+  if(filiere){
+    const rows = filiere.rows||[];
+    const el = document.getElementById('filiereChart');
+    if(el){
+      const byFil = {};
+      rows.forEach(r=>{ byFil[r.filiere]=(byFil[r.filiere]||0)+r.nb; });
+      const tot = Object.values(byFil).reduce((a,b)=>a+b,0)||1;
+      el.innerHTML = Object.keys(byFil).length
+        ? Object.entries(byFil).slice(0,8).map(([f,n])=>`
+            <div class="src-row"><div class="src-name">${esc(f)}</div>
+            <div class="src-track"><div class="src-fill" style="width:${Math.round(n/tot*100)}%"></div></div>
+            <div class="src-cnt">${n}</div></div>`).join('')
+        : '<div class="meta">Aucune question enregistrée pour le moment</div>';
+    }
+  }
+
+  // Paramètres pédagogiques
+  const cfg = await api('/api/admin/config');
+  renderPedaToggles(cfg||{});
+}
+
+function renderPedaToggles(cfg){
+  const el = document.getElementById('pedaToggles'); if(!el) return;
+  const toggles = [
+    {key:'peda_validation_required', label:'Validation requise', desc:'Les nouvelles réponses IA passent par la file de validation avant d\'être servies.'},
+    {key:'peda_mode_strict', label:'Mode strict', desc:'Les réponses hors corpus académique sont bloquées.'},
+    {key:'peda_alert_threshold', label:'Seuil d\'alerte qualité (70%)', desc:'Email si le score qualité hebdomadaire descend en dessous.', type:'number'},
+  ];
+  el.innerHTML = toggles.map(t=>t.type==='number'
+    ? `<div class="toggle-row"><div class="toggle-info"><strong>${esc(t.label)}</strong><span>${esc(t.desc)}</span></div>
+       <input type="number" style="width:70px;background:var(--panel-soft);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:5px 8px;font-size:.88rem;" value="${esc(cfg[t.key]||'70')}" onchange="saveConfig('${t.key}',this.value)"/></div>`
+    : `<div class="toggle-row"><div class="toggle-info"><strong>${esc(t.label)}</strong><span>${esc(t.desc)}</span></div>
+       <label class="toggle-sw"><input type="checkbox" ${cfg[t.key]==='true'?'checked':''} onchange="saveConfig('${t.key}',this.checked?'true':'false')"><span class="slider"></span></label></div>`
+  ).join('');
+}
+
+async function loadCourseMaterials(){
+  const el = document.getElementById('courseMaterialsList'); if(!el) return;
+  const data = await api('/api/admin/course-materials');
+  const items = data?.items || [];
+  if(!items.length){
+    el.innerHTML = '<div class="meta">Aucun PDF de cours importe pour le moment.</div>';
+    return;
+  }
+  el.innerHTML = items.map(item=>`
+    <div class="user-card-sm">
+      <strong>${esc(item.title || item.filename || 'Document')}</strong>
+      <div class="meta">${esc(item.filename || '-')} · ${esc(item.page_count || 0)} page(s) · ${esc(item.status || 'ready')}</div>
+      <div class="meta">Importe par ${esc(item.uploaded_by || '-')} ${item.uploaded_at ? '· ' + esc(item.uploaded_at) : ''}</div>
+      ${item.text_excerpt
+        ? `<div style="margin-top:8px;font-size:.82rem;line-height:1.5;color:var(--text-soft);">${esc(trunc(item.text_excerpt, 260))}</div>`
+        : item.status === 'scanned_pdf'
+          ? '<div class="meta" style="margin-top:8px;color:#f5a623;">&#x26A0; PDF scanné (image) — aucun texte extractible. Utilisez un PDF avec couche texte.</div>'
+          : '<div class="meta" style="margin-top:8px;color:#ff8888;">&#x26A0; Extraction échouée — vérifiez que le PDF n\'est pas protégé ou corrompu.</div>'
+      }
+    </div>`).join('');
+}
+
+async function submitCourseUpload(){
+  const input = document.getElementById('coursePdfFile');
+  const file = input?.files?.[0];
+  if(!file){ setNotice('Selectionne un PDF de cours.', 'err'); return; }
+  const body = new FormData();
+  body.append('file', file);
+  const r = await fetch('/api/admin/course-materials', { method:'POST', body });
+  const data = await r.json().catch(()=>({}));
+  if(!r.ok){ setNotice(data.error || 'Import impossible.', 'err'); return; }
+  document.getElementById('courseUploadModal').classList.add('hidden');
+  if(input) input.value = '';
+  loadCourseMaterials();
+  setNotice('PDF de cours importe dans le corpus pedagogique.');
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   ADMIN SÃ‰CURITÃ‰
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+function initSecurite(){
+  document.getElementById('roleDesc').textContent='Audit, conformité RGPD, détection d\'anomalies et protection des données.';
+  buildTabs([
+    {id:'securite', label:'Tableau de bord', html: htmlSec_Main()},
+    {id:'rgpd',     label:'Blocages RGPD',   html: htmlSec_RGPD()},
+    {id:'heatmap',  label:'Heatmap 7j',      html: htmlSec_Heatmap()},
+    {id:'sec_config',label:'Contrôles',      html: htmlSec_Config()},
+  ]);
+  loadSecuriteStats();
+}
+
+function htmlSec_Main(){ return `
+  <div class="g2">
+    <div class="panel">
+      <h2>Anomalies détectées</h2>
+      <div id="anomaliesEl"><div class="meta">Chargement...</div></div>
+    </div>
+    <div class="panel">
+      <h2>Journal d'audit (50 dernières entrées)</h2>
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <select id="secSevFilter" onchange="filterSecAudit()" style="background:var(--panel-soft);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:5px 9px;font-size:.8rem;">
+          <option value="">Toutes sévérités</option><option value="info">Info</option><option value="warning">Warning</option><option value="critical">Critical</option>
+        </select>
+        <a class="btn" href="/api/admin/audit/export" target="_blank" style="padding:5px 10px;font-size:.8rem;">CSV</a>
+      </div>
+      <table><thead><tr><th>Date</th><th>Utilisateur</th><th>Action</th><th>Sévérité</th></tr></thead>
+      <tbody id="secAuditTable"><tr><td colspan="4" class="meta">Chargement...</td></tr></tbody></table>
+    </div>
+  </div>`; }
+
+function htmlSec_RGPD(){ return `
+  <div class="g2e">
+    <div class="panel"><h2>Blocages par pattern</h2><div id="rgpdPatterns"><div class="meta">Chargement...</div></div></div>
+    <div class="panel"><h2>Métriques</h2><div id="rgpdMetrics"><div class="meta">Chargement...</div></div></div>
+  </div>`; }
+
+function htmlSec_Heatmap(){ return `
+  <div class="panel">
+    <h2>Heatmap d'activité — 7 derniers jours</h2>
+    <div style="overflow-x:auto;margin-top:10px;"><div id="heatmapEl" class="meta">Chargement...</div></div>
+  </div>`; }
+
+function htmlSec_Config(){ return `
+  <div class="panel" style="max-width:600px;">
+    <h2>Contrôles de protection</h2>
+    <div id="secToggles"><div class="meta">Chargement...</div></div>
+  </div>`; }
+
+let _secAuditData = [];
+function filterSecAudit(){
+  const sev = document.getElementById('secSevFilter')?.value;
+  const rows = sev ? _secAuditData.filter(r=>r.severity===sev) : _secAuditData;
+  renderAuditRows(rows, 'secAuditTable');
+}
+
+async function loadSecurite(){
+  await loadSecuriteStats();
+}
+
+async function loadSecuriteStats(){
+  const [sec, anom, patterns, al, heatmap, cfg] = await Promise.all([
+    api('/api/admin/stats/securite'),
+    api('/api/admin/stats/anomalies'),
+    api('/api/admin/stats/rgpd-patterns'),
+    api('/api/admin/dashboard'),
+    api('/api/admin/stats/heatmap'),
+    api('/api/admin/config'),
+  ]);
+
+  if(sec){
+    document.getElementById('s0').textContent = sec.rgpd_today===0?'0':sec.rgpd_today;
+    document.getElementById('s0l').textContent = sec.rgpd_today===0?'Aucune donnée sensible détectée aujourd\'hui':'Blocages RGPD aujourd\'hui';
+    document.getElementById('s1').textContent = sec.anomalies_24h||0;
+    document.getElementById('s1l').textContent = sec.anomalies_24h===0?'Aucune anomalie':'Anomalies 24h';
+    document.getElementById('s2').textContent = sec.suspended_accounts||0;
+    document.getElementById('s2l').textContent = 'Comptes suspendus';
+    document.getElementById('s3').textContent = sec.total_logs||0;
+    document.getElementById('s3l').textContent = 'Logs d\'audit totaux';
+    document.getElementById('s4card').className='stat';
+    document.getElementById('s4').textContent='—';
+    document.getElementById('s4l').textContent='';
+  }
+
+  if(anom){
+    const el = document.getElementById('anomaliesEl'); if(!el) return;
+    const noQuota = !anom.quota?.length;
+    const noRole  = !anom.role_changes?.length;
+    const noOff   = !anom.off_hours?.length;
+    if(noQuota && noRole && noOff){
+      el.innerHTML='<div class="banner ok">Système sécurisé — aucune anomalie détectée</div>';
+    } else {
+      let html='';
+      html+=`<strong style="font-size:.82rem;color:var(--text-muted)">QUOTA ATTEINT (${anom.quota.length})</strong>`;
+      html+=anom.quota.map(r=>`<div class="src-row"><div class="src-name">${esc(r.user_identifiant)}</div><div class="src-cnt pill-red">${r.nb}x</div></div>`).join('')||'<div class="meta">Aucun</div>';
+      html+=`<strong style="font-size:.82rem;color:var(--text-muted);display:block;margin-top:10px;">Ã‰LÃ‰VATIONS DE RÃ”LE (${anom.role_changes.length})</strong>`;
+      html+=anom.role_changes.map(r=>`<div style="font-size:.82rem;margin:4px 0;">${esc(r.by)} â†’ ${esc(r.target)} : ${esc(r.details)} <span class="meta">${esc(r.date)}</span></div>`).join('')||'<div class="meta">Aucune</div>';
+      html+=`<strong style="font-size:.82rem;color:var(--text-muted);display:block;margin-top:10px;">CONNEXIONS HORS HORAIRES (${anom.off_hours.length})</strong>`;
+      html+=anom.off_hours.map(r=>`<div style="font-size:.82rem;margin:4px 0;">${esc(r.user_identifiant)} <span class="meta">${esc(r.date)}</span></div>`).join('')||'<div class="meta">Aucune</div>';
+      el.innerHTML=html;
+    }
+  }
+
+  if(al){ _secAuditData = al.audit_logs||[]; filterSecAudit(); }
+
+  if(patterns){
+    const el = document.getElementById('rgpdPatterns'); if(el){
+      const rows = patterns.patterns||[];
+      if(!rows.length) el.innerHTML='<div class="meta">Aucun blocage enregistré</div>';
+      else {
+        const tot = rows.reduce((a,r)=>a+r.nb,0)||1;
+        el.innerHTML = rows.map(r=>`<div class="src-row"><div class="src-name">${esc(r.pattern||'inconnu')}</div><div class="src-track"><div class="src-fill" style="width:${Math.round(r.nb/tot*100)}%;background:var(--red)"></div></div><div class="src-cnt">${r.nb}</div></div>`).join('');
+      }
+    }
+    const me = document.getElementById('rgpdMetrics');
+    if(me && sec){
+      me.innerHTML=`<div class="src-row"><div class="src-name">Blocages aujourd'hui</div><div class="src-cnt">${sec.rgpd_today}</div></div>
+                    <div class="src-row"><div class="src-name">Comptes suspendus</div><div class="src-cnt">${sec.suspended_accounts}</div></div>
+                    <div class="src-row"><div class="src-name">Total logs</div><div class="src-cnt">${sec.total_logs}</div></div>`;
+    }
+  }
+
+  // Heatmap
+  if(heatmap){
+    const el = document.getElementById('heatmapEl');
+    if(el){
+      const data = heatmap.heatmap||[];
+      if(!data.length){ el.textContent='Aucune donnée d\'activité sur 7 jours.'; return; }
+      const maxNb = Math.max(...data.map(d=>d.nb),1);
+      // Build 7x24 grid
+      const grid = {};
+      data.forEach(d=>{ grid[`${d.jour}_${d.heure}`]=d.nb; });
+      const days=['Di','Lu','Ma','Me','Je','Ve','Sa'];
+      let html='<div style="display:flex;gap:2px;flex-wrap:nowrap;">';
+      for(let h=0;h<24;h++){
+        html+=`<div style="display:flex;flex-direction:column;gap:2px;align-items:center;">`;
+        html+=`<div style="font-size:.6rem;color:var(--text-muted);margin-bottom:2px;">${h}h</div>`;
+        for(let d=0;d<7;d++){
+          const nb=grid[`${d}_${h<10?'0'+h:h}`]||0;
+          const alpha=nb?Math.max(.15,nb/maxNb):.05;
+          html+=`<div title="${days[d]} ${h}h: ${nb}" style="width:14px;height:14px;border-radius:2px;background:rgba(245,166,35,${alpha})"></div>`;
+        }
+        html+='</div>';
+      }
+      html+='</div>';
+      el.innerHTML=html;
+    }
+  }
+
+  // Toggles sécurité
+  if(cfg) renderSecToggles(cfg);
+}
+
+function renderSecToggles(cfg){
+  const el = document.getElementById('secToggles'); if(!el) return;
+  const toggles=[
+    {key:'rgpd_filter_active', label:'Filtre RGPD actif', desc:'Désactiver bloque l\'envoi de toute question au système.', confirm:'ÃŠtes-vous sÃ»r ? Désactiver le filtre RGPD expose les données personnelles.'},
+    {key:'sensitive_route_edge_only', label:'Données sensibles â†’ Edge uniquement', desc:'Force le modèle local pour toute question potentiellement sensible.'},
+    {key:'alert_role_change', label:'Alerte élévation de rôle', desc:'Email à admin.securite et directeur dès qu\'un rôle est modifié.'},
+    {key:'audit_mode_enhanced', label:'Mode audit renforcé', desc:'Toutes les actions sont loggées avec IP hashée SHA-256.'},
+  ];
+  el.innerHTML=toggles.map(t=>`
+    <div class="toggle-row">
+      <div class="toggle-info"><strong>${esc(t.label)}</strong><span>${esc(t.desc)}</span></div>
+      <label class="toggle-sw">
+        <input type="checkbox" ${cfg[t.key]==='true'?'checked':''} onchange="saveConfigConfirm('${t.key}',this,${t.confirm?`'${t.confirm}'`:'null'})">
+        <span class="slider"></span>
+      </label>
+    </div>`).join('');
+}
+
+function saveConfigConfirm(key, checkbox, confirmMsg){
+  if(!checkbox.checked && confirmMsg){
+    if(!confirm(confirmMsg)){ checkbox.checked=true; return; }
+  }
+  saveConfig(key, checkbox.checked?'true':'false');
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   SUPER ADMIN
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+function initSuperAdmin(){
+  document.getElementById('roleDesc').textContent='Vision consolidée, gouvernance IA, contrôles globaux.';
+  buildTabs([
+    {id:'super',        label:'Vue consolidée',  html: htmlSuper_Main()},
+    {id:'audit_super',  label:'Audits',          html: htmlAudit_Super()},
+    {id:'corpus',       label:'Corpus PDF',      html: htmlPeda_Corpus()},
+    {id:'reclamations', label:'Réclamations',    badge:0, html: htmlRecAll()},
+  ]);
+  loadSuperStats();
+  loadCourseMaterials();
+  loadReclamations();
+}
+
+function htmlAudit_Super(){ return `
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <h2 style="margin:0">Journal d'audit global</h2>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <select id="sevFilterSuper" onchange="filterAuditSuper()" style="background:var(--panel-soft);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:6px 10px;font-size:.82rem;">
+        <option value="">Toutes sévérités</option>
+        <option value="info">Info</option>
+        <option value="warning">Warning</option>
+        <option value="critical">Critical</option>
+      </select>
+      <a class="btn" href="/api/admin/audit/export" target="_blank">Exporter CSV</a>
+    </div>
+  </div>
+  <table><thead><tr><th>Heure</th><th>Utilisateur</th><th>Action</th><th>Cible</th><th>Sévérité</th></tr></thead>
+  <tbody id="auditTableSuper"><tr><td colspan="5" class="meta">Chargement...</td></tr></tbody></table>`; }
+
+let _auditDataSuper = [];
+function filterAuditSuper(){
+  const sev = document.getElementById('sevFilterSuper')?.value || '';
+  const rows = sev ? _auditDataSuper.filter(r=>r.severity===sev) : _auditDataSuper;
+  renderAuditRows(rows, 'auditTableSuper');
+}
+
+function htmlSuper_Main(){ return `
+  <div class="g2e">
+    <div class="panel"><h2>Volume 30 jours par source</h2><div id="superSources"><div class="meta">Chargement...</div></div></div>
+    <div class="panel"><h2>Activité des admins (30 jours)</h2><div id="adminActivity"><div class="meta">Chargement...</div></div></div>
+  </div>
+  <div class="g2e mt">
+    <div class="panel"><h2>Réclamations en retard (&gt;5 jours)</h2><div id="overdueRec"><div class="meta">Chargement...</div></div></div>
+    <div class="panel"><h2>Comptes actifs</h2><div id="superComptes"><div class="meta">Chargement...</div></div></div>
+  </div>`; }
+
+function htmlRecAll(){ return `
+  <div class="rec-filters">
+    <button class="rec-filter active" data-statut="">Toutes</button>
+    <button class="rec-filter" data-statut="ouvert">Ouvertes</button>
+    <button class="rec-filter" data-statut="resolu">Résolues</button>
+  </div>
+  <table><thead><tr><th>#</th><th>Date</th><th>Source IA</th><th>Filière</th><th>Assignée à</th><th>Decision</th><th>Statut</th><th>Action</th></tr></thead>
+  <tbody id="recTable"><tr><td colspan="8" class="meta">Chargement...</td></tr></tbody></table>`; }
+
+function htmlSuper_Gov(){ return `
+  <div class="panel"><h2>Conformité RGPD — snapshot gouvernance</h2><div id="govRGPD"><div class="meta">Chargement...</div></div></div>`; }
+
+function htmlSuper_Controles(){ return `
+  <div class="g2e">
+    <div class="panel">
+      <h2>Contrôles globaux</h2>
+      <div id="superControles"><div class="meta">Chargement...</div></div>
+    </div>
+    <div class="panel">
+      <h2>Maintenance &amp; purge</h2>
+      <div class="toggle-row">
+        <div class="toggle-info"><strong>Mode maintenance</strong><span>Bloque les étudiants pendant les opérations. Les admins ne sont pas affectés.</span></div>
+        <label class="toggle-sw"><input type="checkbox" id="maintenanceToggle" onchange="toggleMaintenance(this)"><span class="slider"></span></label>
+      </div>
+      <div style="margin-top:16px;">
+        <button class="btn btn-red" onclick="openPurge()">Purger les logs &gt;90 jours</button>
+      </div>
+    </div>
+  </div>`; }
+
+async function loadSuper(){
+  await loadSuperStats();
+}
+
+async function loadSuperStats(){
+  const [d30, activity, overdue, gov, cfg, dashboard] = await Promise.all([
+    api('/api/admin/stats/30days'),
+    api('/api/admin/stats/admin-activity'),
+    api('/api/admin/reclamations/overdue'),
+    api('/api/gouvernance'),
+    api('/api/admin/config'),
+    api('/api/admin/dashboard'),
+  ]);
+
+  // Stat cards
+  if(dashboard){
+    const s = dashboard.stats||{};
+    const routerOk = gov?.router_status;
+    const sante = routerOk
+      ? (routerOk.internet&&routerOk.ollama?'OK':(!routerOk.internet&&!routerOk.ollama?'Hors ligne':'Dégradé'))
+      : '—';
+    document.getElementById('s0').textContent = s.history_count||0;
+    document.getElementById('s0l').textContent = 'Questions totales';
+    document.getElementById('s1').textContent = s.user_count||0;
+    document.getElementById('s1l').textContent = 'Utilisateurs';
+        document.getElementById('s2').textContent = s.question_count||0;
+    document.getElementById('s2l').textContent = 'Questions (30j)';
+    document.getElementById('s3').textContent = s.audit_count||0;
+    document.getElementById('s3l').textContent = 'Logs d\'audit';
+    document.getElementById('s4').textContent = s.feedback_count||0;
+    document.getElementById('s4l').textContent = 'Feedbacks';
+    document.getElementById('s4card').className='stat';
+    const superComptes = document.getElementById('superComptes');
+    if(superComptes) superComptes.innerHTML = `<div class="src-row"><div class="src-name">Utilisateurs actifs</div><div class="src-cnt">${s.user_count||0}</div></div><div class="src-row"><div class="src-name">Admins</div><div class="src-cnt">${s.admin_count||0}</div></div><div class="src-row"><div class="src-name">Questions totales</div><div class="src-cnt">${s.history_count||0}</div></div>`;
+  }
+
+  if(d30){
+    const el = document.getElementById('superSources');
+    const s=d30.sources||{}; const tot=d30.total||1;
+    if(el) el.innerHTML = Object.keys(s).length
+      ? Object.entries(s).map(([k,v])=>`<div class="src-row"><div class="src-name">${esc(k)}</div><div class="src-track"><div class="src-fill ${k==='cloud_groq'?'blue':''}" style="width:${Math.round(v/tot*100)}%"></div></div><div class="src-cnt">${v}</div></div>`).join('')
+      : '<div class="meta">Aucune donnée sur 30 jours</div>';
+  }
+
+  if(activity){
+    const el = document.getElementById('adminActivity');
+    const rows=activity.activity||[];
+    if(el) el.innerHTML = rows.length
+      ? rows.map(r=>`<div class="src-row"><div class="src-name">${esc(r.identifiant||'—')}</div><div class="src-cnt">${r.nb_actions}</div></div>`).join('')
+      : '<div class="meta">Aucune action admin (30j)</div>';
+  }
+
+  if(overdue){
+    const el = document.getElementById('overdueRec');
+    const rows=overdue.reclamations||[];
+    if(el) el.innerHTML = rows.length
+      ? rows.map(r=>`<div class="user-card-sm"><strong>#${r.id} — ${esc(r.source_ia||'—')}</strong><div class="meta">${esc(r.filiere||'—')} Â· ${esc(r.date_creation)} Â· assigné : ${esc(r.admin_assigned)}</div></div>`).join('')
+      : '<div class="meta">Aucune réclamation en retard</div>';
+  }
+
+  if(gov){
+    const el = document.getElementById('govRGPD');
+    const priv=gov.privacy||{};
+    if(el) el.innerHTML=`
+      <div class="src-row"><div class="src-name">Jamais envoyé au modèle</div><div style="font-size:.8rem;color:var(--green);">${esc((priv.never_shared_fields||[]).join(', ')||'—')}</div></div>
+      <div class="src-row"><div class="src-name">Envoyé au modèle</div><div style="font-size:.8rem;">${esc((priv.sent_to_model_fields||[]).join(', ')||'—')}</div></div>
+      <div class="src-row"><div class="src-name">Tracking</div><div class="meta">${priv.tracking_enabled?'Activé':'Désactivé'}</div></div>
+      <div class="src-row"><div class="src-name">Vente données tiers</div><div class="meta">${priv.third_party_sale?'Oui':'Non'}</div></div>
+      <div class="src-row"><div class="src-name">Patterns RGPD actifs</div><div class="meta">${esc((priv.rgpd_guard_patterns||[]).join(', ')||'—')}</div></div>`;
+  }
+
+  if(cfg){
+    const mt = document.getElementById('maintenanceToggle');
+    if(mt) mt.checked = cfg.maintenance_mode==='true';
+    renderSuperControles(cfg);
+  }
+
+  // Audit tab super admin
+  if(dashboard){ _auditDataSuper = dashboard.audit_logs||[]; filterAuditSuper(); }
+}
+
+function renderSuperControles(cfg){
+  const el=document.getElementById('superControles'); if(!el) return;
+  const toggles=[
+    {key:'alert_direction_weekly',label:'Rapport hebdo direction',desc:'Email automatique chaque lundi au directeur avec résumé.'},
+  ];
+  el.innerHTML=toggles.map(t=>`
+    <div class="toggle-row"><div class="toggle-info"><strong>${esc(t.label)}</strong><span>${esc(t.desc)}</span></div>
+    <label class="toggle-sw"><input type="checkbox" ${cfg[t.key]==='true'?'checked':''} onchange="saveConfig('${t.key}',this.checked?'true':'false')"><span class="slider"></span></label></div>`).join('');
+}
+
+async function toggleMaintenance(cb){
+  if(cb.checked && !confirm('Activer le mode maintenance bloquera tous les étudiants. Confirmer ?')){
+    cb.checked=false; return;
+  }
+  await put('/api/admin/maintenance', {active: cb.checked});
+  setNotice(`Mode maintenance ${cb.checked?'activé':'désactivé'}`,'warn');
+}
+
+async function openPurge(){
+  const data = await api('/api/admin/logs/purgeable?days=90');
+  document.getElementById('purgeInfo').textContent = data
+    ? `${data.count} ligne(s) d'audit de plus de 90 jours seront supprimées définitivement.`
+    : 'Impossible de compter les lignes.';
+  document.getElementById('purgeModal').classList.remove('hidden');
+}
+
+async function executePurge(){
+  document.getElementById('purgeModal').classList.add('hidden');
+  const data = await del('/api/admin/logs/purge?days=90');
+  setNotice(data?`${data.deleted} ligne(s) purgées.`:'Erreur lors de la purge.', data?'warn':'err');
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   RÃ‰CLAMATIONS (commun pédago + super admin)
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+let _recFilter = '';
+
+document.addEventListener('click', e=>{
+  const btn = e.target.closest('.rec-filter');
+  if(btn){
+    btn.closest('.rec-filters').querySelectorAll('.rec-filter').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    _recFilter = btn.dataset.statut;
+    loadReclamations();
+  }
+});
+
+async function loadReclamations(){
+  const tbody = document.getElementById('recTable'); if(!tbody) return;
+  tbody.innerHTML='<tr><td colspan="9" class="meta">Chargement...</td></tr>';
+  const isSuperAdmin = _role === 'super_admin';
+  const url = isSuperAdmin
+    ? '/api/admin/reclamations/all'
+    : `/api/admin/reclamations${_recFilter?`?statut=${_recFilter}`:''}`;
+  const data = await api(url);
+  if(!data){ tbody.innerHTML='<tr><td colspan="9" class="meta">Erreur de chargement.</td></tr>'; return; }
+  let rows = data.reclamations||[];
+  if(_recFilter && isSuperAdmin) rows = rows.filter(r=>r.statut===_recFilter);
+
+  // Badge
+  const openCount = rows.filter(r=>r.statut==='ouvert').length;
+  const badge = document.getElementById('badge_reclamations');
+  if(badge){ badge.textContent = openCount>0?openCount:''; badge.style.display=openCount>0?'':'none'; }
+
+  if(!rows.length){ tbody.innerHTML=`<tr><td colspan="9" class="meta">Aucune réclamation.</td></tr>`; return; }
+
+  const decisionLabel = {
+    reclamation_fondee: 'Fondee',
+    a_surveiller: 'A surveiller',
+    reclamation_non_fondee: 'Non fondee',
+  };
+  tbody.innerHTML = rows.map(r=>`
+    <tr class="${r.statut==='ouvert'&&r.date_creation&&daysDiff(r.date_creation)>5?'overdue':''}">
+      <td>#${r.id}</td>
+      <td class="meta">${esc(r.date_creation||'-')}</td>
+      <td><span class="pill pill-blue">${esc(r.source_ia||'—')}</span></td>
+      <td class="meta">${esc(r.filiere||'—')}</td>
+      ${isSuperAdmin?`<td class="meta">${esc(r.admin_assigned||'—')}</td>`:''}
+      ${!isSuperAdmin?`<td class="rec-detail">${esc(trunc(r.description,80))}</td>`:''}
+      ${!isSuperAdmin?`<td class="rec-detail">${esc(trunc(r.reponse_ia,80))}</td>`:''}
+      <td class="meta">${esc(decisionLabel[r.decision_admin] || (r.reviewed_by ? 'Traitee' : 'En attente'))}${r.improvement_needed ? ' · amelioration' : ''}</td>
+      <td><span class="pill ${r.statut==='resolu'?'pill-green':'pill-red'}">${r.statut==='resolu'?'Résolu':'Ouvert'}</span></td>
+      <td>
+        ${r.statut!=='resolu' && !isSuperAdmin
+          ? `<button class="btn btn-gold" style="padding:5px 10px;font-size:.78rem;" onclick="openRecModal(${r.id})">Répondre</button>`
+          : r.statut!=='resolu' && isSuperAdmin
+            ? `<select onchange="reassignRec(${r.id},this.value)" style="background:var(--panel-soft);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:4px 7px;font-size:.78rem;">
+                 <option value="">Réassigner...</option>
+                 <option value="admin_pedagogique">Admin Pédagogique</option>
+                 <option value="admin_it">Admin IT &amp; Sécurité</option>
+               </select>`
+            : `<span class="meta">${esc(trunc(r.reponse_admin || r.reviewed_by || '',50))}</span>`}
+      </td>
+    </tr>`).join('');
+}
+
+function daysDiff(dateStr){
+  try{ return Math.floor((Date.now()-new Date(dateStr).getTime())/86400000); }catch{ return 0; }
+}
+
+function openRecModal(id){
+  _currentRecId=id;
+  document.getElementById('recModalId').textContent='#'+id;
+  document.getElementById('recModalText').value='';
+  document.getElementById('recModalDecision').value='reclamation_fondee';
+  document.getElementById('recModalImprove').checked=true;
+  document.getElementById('recModal').classList.remove('hidden');
+}
+
+function closeRecModal(){ document.getElementById('recModal').classList.add('hidden'); _currentRecId=null; }
+
+async function submitRecReponse(){
+  const reponse = document.getElementById('recModalText').value.trim();
+  const decision = document.getElementById('recModalDecision').value;
+  const improvement = document.getElementById('recModalImprove').checked;
+  if(!reponse){ alert('La réponse ne peut pas être vide.'); return; }
+  const r = await fetch(`/api/admin/reclamations/${_currentRecId}/repondre`,{
+    method:'PUT', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      reponse_admin:reponse,
+      decision_admin:decision,
+      improvement_needed:improvement
+    })
+  });
+  if(r.ok){ closeRecModal(); loadReclamations(); setNotice('Réponse envoyée à l\'étudiant.'); }
+  else { const e=await r.json().catch(()=>({})); setNotice(e.erreur||'Erreur.','err'); }
+}
+
+async function reassignRec(id, admin){
+  if(!admin) return;
+  const r=await fetch(`/api/admin/reclamations/${id}/reassigner`,{
+    method:'PUT', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({admin_assigned:admin})
+  });
+  if(r.ok){ loadReclamations(); setNotice('Réclamation réassignée.'); }
+  else setNotice('Erreur lors de la réassignation.','err');
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   CONFIG
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+async function saveConfig(key, value){
+  await put(`/api/admin/config/${key}`, {value});
+  setNotice(`Paramètre ${key} mis à jour.`);
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STATS communes (7j)
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+async function loadStats(){
+  if(_role==='admin_it') loadITStats();
+}
+
+/* â”€â”€ Modal overlay click to close â”€â”€ */
+['recModal','createUserModal','purgeModal','courseUploadModal'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',function(e){ if(e.target===this) this.classList.add('hidden'); });
+});
+
+syncCreateUserFields();
+init();
+</script>
+</body>
+</html>
+

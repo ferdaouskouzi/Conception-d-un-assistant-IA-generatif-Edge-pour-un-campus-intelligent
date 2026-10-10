@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FERHAA - Creer un compte</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --card: #131313;
+      --card-border: #252525;
+      --gold: #f5a623;
+      --gold-hover: #e09510;
+      --gold-soft: rgba(245,166,35,.12);
+      --text: #ffffff;
+      --text-muted: #8b8b8b;
+      --input-bg: #1a1a1a;
+      --input-border: #303030;
+      --error: #ff5f5f;
+      --success: #44b96d;
+    }
+    [data-theme="light"] {
+      --bg: #f3eee5;
+      --card: #ffffff;
+      --card-border: #ddd4c7;
+      --text: #171717;
+      --text-muted: #6f6a63;
+      --input-bg: #f7f2ea;
+      --input-border: #ddd4c7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", sans-serif; background: var(--bg); min-height: 100vh; padding: 36px 20px; }
+    .theme-toggle { position: fixed; top: 18px; right: 22px; display: flex; gap: 8px; align-items: center; background: var(--card); border: 1px solid var(--card-border); border-radius: 999px; padding: 6px 14px; color: var(--text-muted); cursor: pointer; }
+    .toggle-switch { width: 36px; height: 20px; background: var(--gold); border-radius: 999px; position: relative; }
+    .toggle-switch::after { content: ""; width: 14px; height: 14px; border-radius: 50%; background: #fff; position: absolute; top: 3px; left: 3px; transition: left .2s; }
+    [data-theme="light"] .toggle-switch::after { left: 19px; }
+    .wrapper { max-width: 860px; margin: 0 auto; }
+    .back-link { display: inline-block; margin-bottom: 22px; color: var(--text-muted); text-decoration: none; }
+    .card { background: var(--card); border: 1px solid var(--card-border); border-radius: 22px; padding: 34px; }
+    h1 { font-size: 1.9rem; margin-bottom: 10px; color: var(--text); }
+    h1 span { color: var(--gold); }
+    .subtitle { color: var(--text-muted); line-height: 1.6; margin-bottom: 26px; }
+    .section { margin-bottom: 28px; }
+    .section-title { color: var(--gold); text-transform: uppercase; letter-spacing: 1.5px; font-size: .76rem; font-weight: 800; margin-bottom: 14px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { margin-bottom: 14px; }
+    label { display: block; color: var(--text-muted); margin-bottom: 8px; font-size: .82rem; }
+    input { width: 100%; padding: 14px 16px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; color: var(--text); outline: none; }
+    .helper { color: var(--text-muted); font-size: .82rem; margin-top: -4px; margin-bottom: 14px; line-height: 1.5; }
+    .cycle-box {
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: var(--input-bg);
+    }
+    .cycle-title {
+      color: var(--gold);
+      font-size: .82rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+    }
+    .cycle-desc {
+      color: var(--text-muted);
+      font-size: .82rem;
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+    .annee-list, .filiere-grid { display: grid; gap: 10px; }
+    .filiere-grid { grid-template-columns: 1fr 1fr; }
+    .annee-pill, .filiere-card {
+      border: 1px solid var(--input-border);
+      border-radius: 14px;
+      padding: 14px;
+      cursor: pointer;
+      background: var(--input-bg);
+      color: var(--text-muted);
+    }
+    .annee-pill.selected, .filiere-card.selected {
+      border-color: var(--gold);
+      background: var(--gold-soft);
+      color: var(--text);
+    }
+    .filiere-card { text-align: center; padding: 22px 16px; }
+    .filiere-icon { font-size: 1.9rem; display: block; margin-bottom: 10px; }
+    .filiere-code { color: var(--gold); font-size: 1.05rem; font-weight: 800; letter-spacing: 1px; margin-bottom: 6px; }
+    .filiere-label { color: var(--text-muted); font-size: .96rem; }
+    .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; background: var(--gold); color: #000; font-weight: 800; font-size: 1rem; cursor: pointer; }
+    .btn:hover { background: var(--gold-hover); }
+    .error-msg, .success-msg { display: none; margin-top: 12px; text-align: center; font-size: .84rem; }
+    .error-msg { color: var(--error); }
+    .success-msg { color: var(--success); }
+    .password-rules {
+      margin-top: 10px;
+      padding: 12px 14px;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      background: var(--input-bg);
+      color: var(--text-muted);
+      font-size: .82rem;
+      line-height: 1.6;
+    }
+    .password-rules strong {
+      color: var(--gold);
+      display: block;
+      margin-bottom: 4px;
+    }
+    @media (max-width: 760px) { .row, .filiere-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="theme-toggle" onclick="toggleTheme()">
+    <span>Theme</span>
+    <div class="toggle-switch"></div>
+    <span id="themeLabel">Sombre</span>
+  </div>
+
+  <div class="wrapper">
+    <a class="back-link" href="/">← Retour a la connexion</a>
+    <div class="card">
+      <h1>Creer votre compte <span>FERHAA</span></h1>
+      <p class="subtitle">Choisissez d'abord votre cycle et votre annee. Si vous optez pour le cycle ingenieur, vous preciserez ensuite votre filiere.</p>
+
+      <form id="registerForm">
+        <div class="section">
+          <div class="section-title">Identite</div>
+          <div class="row">
+            <div class="form-group"><label>Prenom</label><input type="text" id="prenom" /></div>
+            <div class="form-group"><label>Nom</label><input type="text" id="nom" /></div>
+          </div>
+          <div class="row">
+            <div class="form-group"><label>Email institutionnel</label><input type="email" id="email" placeholder="prenom.nom@usms.ac.ma" /></div>
+            <div class="form-group"><label>Telephone</label><input type="tel" id="telephone" placeholder="+2126..." /></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Acces</div>
+          <div class="row">
+            <div class="form-group"><label>Apogee</label><input type="text" id="apogee" placeholder="Votre numero Apogee" /></div>
+            <div class="form-group"><label>CIN</label><input type="text" id="cin_user" placeholder="Ex: BM123456" /></div>
+          </div>
+          <div class="form-group"><label>Mot de passe securise</label><input type="password" id="cin" placeholder="Minimum 8 caracteres" /></div>
+          <div class="password-rules">
+            <strong>Exigences minimales</strong>
+            <div>Contenir au moins 8 caractères</div>
+            <div>Inclure au moins une lettre majuscule</div>
+            <div>Inclure au moins une lettre minuscule</div>
+            <div>Inclure au moins un chiffre</div>
+            <div>Inclure au moins un caractère spécial</div>
+          </div>
+          <div class="form-group" style="margin-top:14px;"><label>Confirmer le mot de passe</label><input type="password" id="cinConfirm" placeholder="Répétez votre mot de passe" /></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Annee</div>
+          <div class="cycle-box">
+            <div class="cycle-title">Cycle preparatoire</div>
+            <div class="cycle-desc">Choisissez directement CP1 ou CP2. Ce choix est suffisant a lui seul.</div>
+            <div class="annee-list">
+              <div class="annee-pill" data-cycle="prepa" data-val="CP1" onclick="selectAnnee(this)">CP1 - 1ere annee preparatoire</div>
+              <div class="annee-pill" data-cycle="prepa" data-val="CP2" onclick="selectAnnee(this)">CP2 - 2eme annee preparatoire</div>
+            </div>
+          </div>
+          <div class="cycle-box">
+            <div class="cycle-title">Cycle ingenieur</div>
+            <div class="cycle-desc">Choisissez CI1, CI2 ou CI3. Dans ce cas, il faudra aussi choisir votre filiere.</div>
+            <div class="annee-list">
+              <div class="annee-pill" data-cycle="ingenieur" data-val="CI1" onclick="selectAnnee(this)">CI1 - 1ere annee ingenieur</div>
+              <div class="annee-pill" data-cycle="ingenieur" data-val="CI2" onclick="selectAnnee(this)">CI2 - 2eme annee ingenieur</div>
+              <div class="annee-pill" data-cycle="ingenieur" data-val="CI3" onclick="selectAnnee(this)">CI3 - 3eme annee ingenieur</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section" id="filiereSection" style="display:none;">
+          <div class="section-title">Filiere</div>
+          <div class="helper">Cette etape est demandee uniquement pour le cycle ingenieur.</div>
+          <div class="filiere-grid">
+            <div class="filiere-card" data-val="IACS" onclick="selectFiliere(this)">
+              <span class="filiere-icon">🤖</span>
+              <div class="filiere-code">IACS</div>
+              <div class="filiere-label">IA & Cybersécurité</div>
+            </div>
+            <div class="filiere-card" data-val="G2ER" onclick="selectFiliere(this)">
+              <span class="filiere-icon">⚡</span>
+              <div class="filiere-code">G2ER</div>
+              <div class="filiere-label">Génie Élec. & ENR</div>
+            </div>
+            <div class="filiere-card" data-val="TDI" onclick="selectFiliere(this)">
+              <span class="filiere-icon">🏭</span>
+              <div class="filiere-code">TDI</div>
+              <div class="filiere-label">Transformation Digitale</div>
+            </div>
+            <div class="filiere-card" data-val="IAA" onclick="selectFiliere(this)">
+              <span class="filiere-icon">🌾</span>
+              <div class="filiere-code">IAA</div>
+              <div class="filiere-label">Industries Agroalim.</div>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn" id="submitBtn">Creer mon compte</button>
+        <div class="error-msg" id="errorMsg"></div>
+        <div class="success-msg" id="successMsg"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isLight = html.getAttribute('data-theme') === 'light';
+      html.setAttribute('data-theme', isLight ? 'dark' : 'light');
+      document.getElementById('themeLabel').textContent = isLight ? 'Sombre' : 'Clair';
+      localStorage.setItem('theme', isLight ? 'dark' : 'light');
+    }
+    const saved = localStorage.getItem('theme');
+    if (saved) {
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('themeLabel').textContent = saved === 'light' ? 'Clair' : 'Sombre';
+    }
+
+    let selectedCycle = '';
+    let selectedAnnee = '';
+    let selectedFiliere = '';
+
+    function selectAnnee(el) {
+      document.querySelectorAll('.annee-pill').forEach(item => item.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedAnnee = el.dataset.val;
+      selectedCycle = el.dataset.cycle || '';
+
+      if (selectedCycle === 'ingenieur') {
+        document.getElementById('filiereSection').style.display = 'block';
+      } else {
+        document.getElementById('filiereSection').style.display = 'none';
+        selectedFiliere = '';
+        document.querySelectorAll('.filiere-card').forEach(item => item.classList.remove('selected'));
+      }
+    }
+
+    function selectFiliere(el) {
+      document.querySelectorAll('.filiere-card').forEach(item => item.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedFiliere = el.dataset.val;
+    }
+
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const err = document.getElementById('errorMsg');
+      const success = document.getElementById('successMsg');
+      const btn = document.getElementById('submitBtn');
+      const payload = {
+        identifiant: document.getElementById('apogee').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        password: document.getElementById('cin').value.trim(),
+        cin: document.getElementById('cin_user').value.trim(),
+        prenom: document.getElementById('prenom').value.trim(),
+        nom: document.getElementById('nom').value.trim(),
+        telephone: document.getElementById('telephone').value.trim(),
+        filiere: selectedCycle === 'ingenieur' ? selectedFiliere : '',
+        annee: selectedAnnee
+      };
+
+      if (!payload.email || !payload.password || !payload.prenom || !payload.nom || !payload.identifiant || !payload.cin) {
+        err.style.display = 'block';
+        err.textContent = 'Prenom, nom, email institutionnel, Apogee, CIN et mot de passe sont obligatoires.';
+        return;
+      }
+
+      const pwConfirm = document.getElementById('cinConfirm').value.trim();
+      if (payload.password !== pwConfirm) {
+        err.style.display = 'block';
+        err.textContent = 'Les deux mots de passe ne correspondent pas. Veuillez les ressaisir.';
+        return;
+      }
+
+      if (!payload.annee) {
+        err.style.display = 'block';
+        err.textContent = 'Veuillez choisir une annee dans le cycle preparatoire ou le cycle ingenieur.';
+        return;
+      }
+
+      if (selectedCycle === 'ingenieur' && !payload.filiere) {
+        err.style.display = 'block';
+        err.textContent = 'Veuillez choisir une filiere pour le cycle ingenieur.';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Creation...';
+      err.style.display = 'none';
+      success.style.display = 'none';
+
+      try {
+        const resp = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+        if (data.success) {
+          success.style.display = 'block';
+          success.textContent = 'Compte cree. Redirection...';
+          setTimeout(() => window.location.href = '/', 1400);
+        } else {
+          err.style.display = 'block';
+          err.textContent = data.message || 'Erreur de creation du compte.';
+          if (data.conditions) {
+            err.textContent += ' : ' + data.conditions.join(' ; ');
+          }
+        }
+      } catch {
+        err.style.display = 'block';
+        err.textContent = 'Erreur de connexion au serveur.';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Creer mon compte';
+      }
+    });
+  </script>
+</body>
+</html>

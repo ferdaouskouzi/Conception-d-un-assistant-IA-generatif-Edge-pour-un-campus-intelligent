@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FERHAA &mdash; Assistant Campus IA</title>
+  <style>
+    /* â"€â"€ Variables â"€â"€ */
+    :root {
+      --bg:           #0a0a0a;
+      --sidebar:      #0f0f0f;
+      --navbar:       #0f0f0f;
+      --card:         #161616;
+      --card2:        #1a1a1a;
+      --border:       #222222;
+      --gold:         #f5a623;
+      --gold-dim:     rgba(245,166,35,.15);
+      --gold-hover:   #e09510;
+      --blue:         #4a8ef5;
+      --text:         #ffffff;
+      --text-muted:   #666666;
+      --text-sub:     #999999;
+      --input-bg:     #141414;
+      --bubble-ai:    #1a1a1a;
+      --bubble-user:  #1e2a18;
+      --scrollbar:    #222;
+      --error:        #ff5555;
+    }
+    [data-theme="light"] {
+      --bg:           #f5f0e8;
+      --sidebar:      #ede8de;
+      --navbar:       #ede8de;
+      --card:         #ffffff;
+      --card2:        #f7f4ef;
+      --border:       #ddd8cc;
+      --text:         #111111;
+      --text-muted:   #888888;
+      --text-sub:     #777777;
+      --input-bg:     #ffffff;
+      --bubble-ai:    #ffffff;
+      --bubble-user:  #e8f5e0;
+      --scrollbar:    #ccc;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    html, body {
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+       LAYOUT
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+    .layout {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+       SIDEBAR
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+    .sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .sidebar-top { padding: 14px 12px; }
+
+    .btn-new {
+      width: 100%;
+      padding: 11px 16px;
+      background: var(--gold);
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-new:hover { background: var(--gold-hover); }
+
+    .search-wrap {
+      margin-top: 10px;
+      position: relative;
+    }
+    .search-wrap input {
+      width: 100%;
+      padding: 9px 12px 9px 32px;
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.82rem;
+      outline: none;
+    }
+    .search-wrap input::placeholder { color: var(--text-muted); }
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    /* Discussions */
+    .section-label {
+      padding: 14px 14px 6px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .discussions {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 8px;
+    }
+    .discussions::-webkit-scrollbar { width: 4px; }
+    .discussions::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 4px; }
+
+    .disc-item {
+      padding: 10px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 2px;
+      transition: background .15s;
+    }
+    .disc-item:hover, .disc-item.active { background: var(--card2); }
+    .disc-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2px;
+      gap: 8px;
+    }
+    .disc-main {
+      flex: 1;
+      min-width: 0;
+    }
+    .disc-title {
+      font-size: 0.85rem;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 160px;
+    }
+    .disc-time {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .disc-delete {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .disc-delete:hover {
+      color: var(--error);
+      border-color: rgba(255,85,85,.4);
+      background: rgba(255,85,85,.08);
+    }
+    .disc-preview {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .disc-preview .warn { color: var(--gold); font-size: 0.7rem; }
+    .disc-empty { padding: 12px 16px; font-size: 0.78rem; color: var(--text-muted); }
+
+    /* Sidebar logo */
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 14px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo-icon {
+      width: 34px;
+      height: 34px;
+      background: var(--gold-dim);
+      border: 1px solid var(--gold);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .sidebar-logo-brand {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: 1px;
+    }
+    .sidebar-logo-brand span { color: var(--gold); }
+
+    /* Sidebar bottom */
+    .sidebar-bottom {
+      border-top: 1px solid var(--border);
+      padding: 8px 8px;
+    }
+    .side-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 8px;
+      color: var(--text-sub);
+      font-size: 0.84rem;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+      text-decoration: none;
+    }
+    .side-link:hover { background: var(--card2); color: var(--text); }
+    .side-link .icon { font-size: 0.9rem; width: 18px; text-align: center; }
+    .side-link.admin-link { color: var(--gold); }
+    .side-link.admin-link:hover { background: var(--gold-dim); color: var(--gold); }
+
+    .user-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 10px;
+      border-radius: 8px;
+      margin-top: 4px;
+      background: var(--card2);
+    }
+    .user-avatar {
+      width: 34px;
+      height: 34px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: #000;
+      flex-shrink: 0;
+    }
+    .user-info .name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .user-info .meta {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+       MAIN
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Navbar */
+    .navbar {
+      height: 54px;
+      background: var(--navbar);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      flex-shrink: 0;
+    }
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-logo {
+      width: 32px;
+      height: 32px;
+      background: var(--gold-dim);
+      border: 1px solid var(--gold);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+    .nav-brand {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: 1px;
+    }
+    .nav-brand span { color: var(--gold); }
+    .badge-edge {
+      background: var(--blue);
+      color: #fff;
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+      letter-spacing: 1px;
+    }
+    .navbar-center {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .status-dot {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .dot-green {
+      width: 7px;
+      height: 7px;
+      background: #4caf50;
+      border-radius: 50%;
+    }
+    .nav-btn {
+      padding: 5px 12px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-sub);
+      font-size: 0.78rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background .15s, color .15s;
+    }
+    .nav-btn:hover { background: var(--card2); color: var(--text); }
+    .nav-btn.blue { border-color: var(--blue); color: var(--blue); }
+    .nav-btn.gold { border-color: var(--gold); color: var(--gold); }
+    .nav-btn.gold:hover { background: var(--gold-dim); }
+
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 10px;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      user-select: none;
+    }
+    .toggle-sw {
+      width: 30px;
+      height: 17px;
+      background: var(--gold);
+      border-radius: 999px;
+      position: relative;
+    }
+    .toggle-sw::after {
+      content: '';
+      width: 11px;
+      height: 11px;
+      background: #fff;
+      border-radius: 50%;
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      transition: left .2s;
+    }
+    [data-theme="light"] .toggle-sw::after { left: 16px; }
+
+    /* Messages */
+    .messages-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 60px;
+    }
+    .messages-area::-webkit-scrollbar { width: 5px; }
+    .messages-area::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 4px; }
+
+    .msg-row {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 24px;
+      align-items: flex-start;
+    }
+    .msg-row.user { flex-direction: row-reverse; }
+
+    .msg-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+      background: var(--gold-dim);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+    }
+    .msg-row.user .msg-avatar {
+      background: var(--gold);
+      color: #000;
+      font-weight: 800;
+      font-size: 0.85rem;
+      border: none;
+    }
+
+    .msg-content { max-width: 680px; }
+    .msg-meta {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .msg-meta .sender { font-weight: 600; color: var(--text-sub); }
+    .msg-meta .sender.ai { color: var(--gold); }
+
+    .bubble {
+      background: var(--bubble-ai);
+      border: 1px solid var(--border);
+      border-radius: 4px 14px 14px 14px;
+      padding: 16px 20px;
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--text);
+    }
+    .msg-row.user .bubble {
+      background: var(--bubble-user);
+      border-radius: 14px 4px 14px 14px;
+      border-color: #2a3a22;
+    }
+
+    .bubble strong, .bubble b { color: var(--gold); }
+    .bubble ul { padding-left: 18px; margin: 6px 0; }
+    .bubble li { margin-bottom: 4px; }
+    .bubble p { margin-bottom: 8px; }
+    .bubble p:last-child { margin-bottom: 0; }
+
+    /* Loading dots */
+    .loading-dots {
+      display: flex;
+      gap: 5px;
+      padding: 4px 0;
+    }
+    .loading-dots span {
+      width: 7px;
+      height: 7px;
+      background: var(--gold);
+      border-radius: 50%;
+      animation: bounce 1.2s infinite;
+    }
+    .loading-dots span:nth-child(2) { animation-delay: .2s; }
+    .loading-dots span:nth-child(3) { animation-delay: .4s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); opacity:.4; }
+      40%            { transform: translateY(-6px); opacity:1; }
+    }
+
+    /* Reaction bar (like/dislike/signaler) */
+    .msg-reactions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .reaction-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      padding: 3px 10px;
+      cursor: pointer;
+      transition: background .13s, color .13s, border-color .13s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .reaction-btn:hover { background: var(--card2); color: var(--text); }
+    .reaction-btn.liked    { border-color: #4caf50; color: #4caf50; background: rgba(76,175,80,.1); }
+    .reaction-btn.disliked { border-color: var(--error); color: var(--error); background: rgba(255,85,85,.08); }
+    .reaction-btn.signaled { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+
+    /* Modal réclamation */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.65);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px;
+      width: min(500px, 94vw);
+    }
+    .modal-box h3 { font-size: 1rem; margin-bottom: 16px; color: var(--text); }
+    .modal-box label { display: block; font-size: .8rem; color: var(--text-muted); margin-bottom: 6px; margin-top: 12px; }
+    .modal-box select, .modal-box textarea {
+      width: 100%;
+      background: var(--card2); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text);
+      padding: 10px 12px; font-size: .88rem; font-family: inherit;
+    }
+    .modal-box textarea { min-height: 80px; resize: vertical; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+    .modal-btn { padding: 9px 16px; border-radius: 10px; font-size: .88rem; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text); }
+    .modal-btn.primary { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 700; }
+
+    /* Source badge */
+    .source-badge {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 0.68rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+       BOTTOM
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+    .bottom-area {
+      flex-shrink: 0;
+      padding: 0 20px 16px;
+    }
+
+    /* RGPD banner */
+    .rgpd-banner {
+      background: var(--gold-dim);
+      border: 1px solid rgba(245,166,35,.3);
+      border-radius: 10px;
+      padding: 9px 16px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .rgpd-banner strong { color: var(--gold); }
+
+    /* Input */
+    .input-card {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .input-card:focus-within { border-color: rgba(245,166,35,.4); }
+
+    #questionInput {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 0.92rem;
+      font-family: inherit;
+      resize: none;
+      max-height: 160px;
+      line-height: 1.5;
+    }
+    #questionInput::placeholder { color: var(--text-muted); }
+
+    .input-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    .input-hint {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+    .input-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .char-counter {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+    .send-btn {
+      width: 32px;
+      height: 32px;
+      background: var(--gold);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s, transform .1s;
+      font-size: 0.85rem;
+    }
+    .send-btn:hover { background: var(--gold-hover); }
+    .send-btn:active { transform: scale(.95); }
+    .send-btn:disabled { opacity: .4; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- â•â•â•â•â•â•â•â• SIDEBAR â•â•â•â•â•â•â•â• -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">ف</div>
+      <span class="sidebar-logo-brand">FERHAA<span>AI</span></span>
+    </div>
+
+    <div class="sidebar-top">
+      <button class="btn-new" onclick="newDiscussion()">+ Nouvelle discussion</button>
+    </div>
+
+    <div class="section-label" id="discussionLabel">Chat</div>
+    <div class="search-wrap" style="padding: 0 10px 8px;">
+      <span class="search-icon">&#x1F50D;</span>
+      <input type="text" id="searchInput" placeholder="Rechercher..." oninput="filterDiscussions(this.value)" />
+    </div>
+    <div class="discussions" id="discussionsList"></div>
+
+    <div class="sidebar-bottom">
+      <a class="side-link" href="/historique" id="historyLink">
+        <span class="icon">&#x1F4CB;</span> Historique
+      </a>
+      <a class="side-link" href="/gouvernance">
+        <span class="icon">&#x1F6E1;</span> Gouvernance IA
+      </a>
+      <a class="side-link admin-link" href="/admin" id="adminLink" style="display:none">
+        <span class="icon">&#x2699;</span> Dashboard Admin
+      </a>
+      <a class="side-link" href="#" onclick="logout()">
+        <span class="icon">&#x238B;</span> D&eacute;connexion
+      </a>
+      <a class="user-card" href="/profile" id="userProfileCard" style="text-decoration:none;">
+        <div class="user-avatar" id="sideAvatar">H</div>
+        <div class="user-info">
+          <div class="name" id="sideNom">Chargement...</div>
+          <div class="meta" id="sideMeta">&mdash;</div>
+        </div>
+      </a>
+    </div>
+  </aside>
+
+  <!-- â•â•â•â•â•â•â•â• MAIN â•â•â•â•â•â•â•â• -->
+  <div class="main">
+
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="navbar-left">
+        <div class="status-dot">
+          <div class="dot-green"></div>
+          FERHAA Edge v1.0 &bull; ENSABM
+        </div>
+      </div>
+      <div class="navbar-center" id="navTitle">Nouvelle discussion</div>
+      <div class="navbar-right">
+        <div class="theme-toggle" onclick="toggleTheme()">
+          <span>&#x1F319;</span>
+          <div class="toggle-sw"></div>
+          <span id="themeLabel">Sombre</span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Messages -->
+    <div class="messages-area" id="messagesArea"></div>
+
+    <!-- Zone de saisie -->
+    <div class="bottom-area">
+      <div class="rgpd-banner">
+        &#x1F512; <strong>Conformit&eacute; RGPD</strong> &mdash; Ne saisissez aucune donn&eacute;e personnelle (email, CIN, t&eacute;l&eacute;phone...). Chaque &eacute;change est journalis&eacute; localement.
+      </div>
+      <div class="input-card">
+        <textarea
+          id="questionInput"
+          rows="1"
+          placeholder="Posez votre question à FERHAA..."
+          maxlength="1000"
+          oninput="autoResize(this); updateCounter(this)"
+          onkeydown="handleKey(event)"
+        ></textarea>
+        <div class="input-footer">
+          <span class="input-hint">Entrée pour envoyer &middot; Maj+Entrée pour saut de ligne</span>
+          <div class="input-right">
+            <span class="char-counter" id="charCounter">0 / 1000</span>
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Envoyer">&#x2192;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  
+<!-- Modal réclamation depuis le chat -->
+<div class="modal-overlay hidden" id="chatSignalModal">
+  <div class="modal-box">
+    <h3>&#x26A0; Signaler cette réponse</h3>
+    <input type="hidden" id="csReponse" />
+    <label>Motif</label>
+    <select id="csMotif">
+      <option value="reponse_incorrecte">Réponse incorrecte</option>
+      <option value="reponse_incomplete">Réponse incomplète</option>
+      <option value="reponse_hors_sujet">Réponse hors sujet</option>
+      <option value="reponse_inappropriee">Réponse inappropriée</option>
+      <option value="autre">Autre</option>
+    </select>
+    <label>Détails (optionnel)</label>
+    <textarea id="csDetails" placeholder="Précisez ce qui est incorrect..."></textarea>
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="closeChatSignal()">Annuler</button>
+      <button class="modal-btn primary" onclick="submitChatSignal()">Envoyer le signalement</button>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<script>
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STATE
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+let currentUser  = null;
+let discussions  = [];
+let activeDiscId = null;
+function isAdminRole(role) {
+  return ['admin_it', 'admin_pedagogique', 'super_admin'].includes(role || '');
+}
+
+function getDiscussionStorageKey() {
+  const identifiant = currentUser?.identifiant || 'anonymous';
+  return `ferhaa_discussions_${identifiant}`;
+}
+
+function mergeDiscussions(...lists) {
+  const merged = new Map();
+
+  for (const list of lists) {
+    for (const disc of (list || [])) {
+      if (!disc || !disc.id) continue;
+
+      const current = merged.get(disc.id);
+      if (!current) {
+        merged.set(disc.id, {
+          id: disc.id,
+          title: disc.title || 'Nouvelle discussion',
+          time: disc.time || '',
+          messages: Array.isArray(disc.messages) ? disc.messages : []
+        });
+        continue;
+      }
+
+      const seen = new Set(current.messages.map(m => `${m.role}|${m.text}|${m.time}|${m.source || ''}`));
+      for (const msg of (disc.messages || [])) {
+        const key = `${msg.role}|${msg.text}|${msg.time}|${msg.source || ''}`;
+        if (!seen.has(key)) {
+          current.messages.push(msg);
+          seen.add(key);
+        }
+      }
+
+      if (disc.title && disc.title !== 'Nouvelle discussion') current.title = disc.title;
+      if (disc.time) current.time = disc.time;
+    }
+  }
+
+  return Array.from(merged.values()).sort((a, b) => (b.time || '').localeCompare(a.time || ''));
+}
+
+function readLocalDiscussions() {
+  // Lecture uniquement depuis la clé scopeée à cet utilisateur
+  // (la clé globale 'ferhaa_discussions' causait une contamination croisée entre comptes)
+  return JSON.parse(localStorage.getItem(getDiscussionStorageKey()) || '[]');
+}
+
+async function syncDiscussions() {
+  if (!currentUser) return;
+
+  try {
+    const resp = await fetch('/api/conversations/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ conversations: discussions })
+    });
+    if (!resp.ok) return;
+    const data = await resp.json();
+    discussions = Array.isArray(data.items) ? data.items : discussions;
+    saveDiscussions(false);
+    renderDiscussions();
+  } catch {}
+}
+
+function isConversationUsable(disc) {
+  if (!disc || !Array.isArray(disc.messages) || disc.messages.length === 0) return false;
+  const aiMessages = disc.messages.filter(msg => msg.role === 'ai');
+  if (aiMessages.length === 0) return false;
+
+  return aiMessages.some(msg => {
+    const text = String(msg.text || '').toLowerCase();
+    return !(
+      text.includes('erreur') ||
+      text.includes('indisponible') ||
+      text.includes('connexion au serveur') ||
+      text.includes('refus rgpd') ||
+      text.includes('non authentifi') ||
+      text.includes('question vide')
+    );
+  });
+}
+
+function getPersistedDiscussions() {
+  return discussions.filter(isConversationUsable);
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   INIT
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+document.addEventListener('DOMContentLoaded', async () => {
+  // ThÃ¨me
+  const saved = localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeLabel').textContent = saved === 'light' ? 'Clair' : 'Sombre';
+
+  // Charger user
+  try {
+    const r = await fetch('/api/me');
+    if (!r.ok) { window.location.href = '/'; return; }
+    currentUser = await r.json();
+  } catch { window.location.href = '/'; return; }
+
+  // Afficher infos user
+  const initiale = (currentUser.prenom || 'U')[0].toUpperCase();
+  document.getElementById('sideAvatar').textContent  = initiale;
+  document.getElementById('sideNom').textContent     = currentUser.prenom || 'Utilisateur';
+  document.getElementById('sideMeta').textContent    =
+    isAdminRole(currentUser.role)
+      ? (currentUser.role_label || 'Administrateur')
+      : `${currentUser.filiere || '\u2014'} \u00b7 ${currentUser.annee || '\u2014'}`;
+
+  // Gestion liens sidebar selon le rôle
+  if (isAdminRole(currentUser.role)) {
+    const adminLink = document.getElementById('adminLink');
+    const historyLink = document.getElementById('historyLink');
+    if (adminLink) adminLink.style.display = '';
+    if (historyLink) historyLink.style.display = 'none';
+  } else {
+    const adminLink = document.getElementById('adminLink');
+    const historyLink = document.getElementById('historyLink');
+    if (adminLink) adminLink.style.display = 'none';
+    if (historyLink) historyLink.style.display = '';
+  }
+
+  discussions = readLocalDiscussions();
+  try {
+    const resp = await fetch('/api/conversations');
+    if (resp.ok) {
+      const data = await resp.json();
+      discussions = mergeDiscussions(discussions, data.items || []);
+      saveDiscussions(false);
+      await syncDiscussions();
+    }
+  } catch {}
+
+  renderDiscussions();
+
+  if (!activeDiscId) newDiscussion();
+});
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   THÃˆME
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+function toggleTheme() {
+  const html    = document.documentElement;
+  const isLight = html.getAttribute('data-theme') === 'light';
+  const next    = isLight ? 'dark' : 'light';
+  html.setAttribute('data-theme', next);
+  document.getElementById('themeLabel').textContent = next === 'light' ? 'Clair' : 'Sombre';
+  localStorage.setItem('theme', next);
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   DISCUSSIONS
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+function saveDiscussions(sync = true) {
+  // Sauvegarde uniquement dans la clé scopeée
+  localStorage.setItem(getDiscussionStorageKey(), JSON.stringify(discussions));
+  // Supprimer la clé globale légacy qui causait la contamination croisée entre comptes
+  localStorage.removeItem('ferhaa_discussions');
+  if (sync) {
+    const snapshot = discussions;
+    syncDiscussions().finally(() => {
+      discussions = snapshot;
+    });
+  }
+}
+
+function newDiscussion() {
+  const id = Date.now().toString();
+  const disc = { id, title: 'Nouvelle discussion', messages: [], time: nowTime() };
+  discussions.unshift(disc);
+  activeDiscId = id;
+  saveDiscussions();
+  renderDiscussions();
+  renderMessages();
+  showWelcome();
+  document.getElementById('navTitle').textContent = 'Nouvelle discussion';
+}
+
+function openDiscussion(id) {
+  activeDiscId = id;
+  renderDiscussions();
+  renderMessages();
+  const disc = discussions.find(d => d.id === id);
+  document.getElementById('navTitle').textContent = isAdminRole(currentUser?.role) ? 'Discussion' : (disc ? disc.title : 'Discussion');
+}
+
+function renderDiscussions() {
+  const list = document.getElementById('discussionsList');
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = discussions.filter(d => {
+    const firstQ = d.messages.find(m => m.role === 'user')?.text || '';
+    return firstQ.toLowerCase().includes(q) || d.title.toLowerCase().includes(q);
+  });
+  if (!filtered.length) {
+    list.innerHTML = '<div class="disc-empty">Aucune question pour le moment</div>';
+    return;
+  }
+  list.innerHTML = filtered.map(d => {
+    const firstQ = d.messages.find(m => m.role === 'user')?.text || 'Discussion';
+    const preview = firstQ.length > 55 ? firstQ.slice(0, 55) + '\u2026' : firstQ;
+    return `
+    <div class="disc-item ${d.id === activeDiscId ? 'active' : ''}" onclick="openDiscussion('${d.id}')">
+      <div class="disc-row">
+        <div class="disc-main"><span class="disc-title">${escHtml(preview)}</span></div>
+        <span class="disc-time">${d.time}</span>
+        <button class="disc-delete" onclick="event.stopPropagation(); deleteDiscussion('${d.id}')" title="Supprimer">&#x00D7;</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterDiscussions(q) { renderDiscussions(); }
+
+async function deleteDiscussion(id) {
+  discussions = discussions.filter(d => d.id !== id);
+  if (activeDiscId === id) {
+    activeDiscId = discussions[0]?.id || null;
+  }
+  saveDiscussions();
+
+  try {
+    await fetch(`/api/conversations/${encodeURIComponent(id)}`, { method: 'DELETE' });
+  } catch {}
+
+  renderDiscussions();
+  if (activeDiscId) {
+    openDiscussion(activeDiscId);
+  } else {
+    document.getElementById('messagesArea').innerHTML = '';
+    document.getElementById('navTitle').textContent = 'Nouvelle discussion';
+  }
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   MESSAGES
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+function getActiveDisc() {
+  return discussions.find(d => d.id === activeDiscId);
+}
+
+function renderMessages() {
+  const area = document.getElementById('messagesArea');
+  const disc = getActiveDisc();
+  if (!disc) { area.innerHTML = ''; return; }
+
+  area.innerHTML = disc.messages.map(m => msgHtml(m)).join('');
+  scrollBottom();
+}
+
+function showWelcome() {
+  const area = document.getElementById('messagesArea');
+  const time  = nowTime();
+  const isAdmin = isAdminRole(currentUser?.role);
+
+  let bubble;
+  if (isAdmin) {
+    const prenom  = escHtml(currentUser?.prenom  || 'Administrateur');
+    const domaine = escHtml(currentUser?.role_label || 'Administration');
+    bubble = `
+      <p>Bienvenue, <strong>${prenom}</strong>&nbsp;&#x1F44B;</p>
+      <p>Je suis <strong>FERHAA</strong>, l'assistante IA de l'ENSABM. En tant que <strong>${domaine}</strong>, vous avez accès au chat pour toute consultation ou recherche liée à vos responsabilités.</p>
+      <p>Je peux vous assister sur&nbsp;:</p>
+      <ul>
+        <li>Gouvernance IA &amp; conformité RGPD</li>
+        <li>Cybersécurité &amp; gestion des risques</li>
+        <li>Réglementation du numérique &amp; droit</li>
+        <li>Analyse et synthèse de documents</li>
+      </ul>
+      <p>Comment puis-je vous être utile&nbsp;? &#x1F4BC;</p>`;
+  } else {
+    const prenom  = escHtml(currentUser?.prenom  || 'étudiant·e');
+    const filiere = escHtml(currentUser?.filiere || 'votre filière');
+    bubble = `
+      <p>Bonjour <strong>${prenom}</strong>&nbsp;! Je suis <strong>FERHAA</strong>, votre assistante IA de l'ENSABM. &#x1F916;</p>
+      <p>Je suis spécialisée pour la filière <strong>${filiere}</strong>. Je peux vous aider avec&nbsp;:</p>
+      <ul>
+        <li>Questions de cours et résumés</li>
+        <li>Planning de révision personnalisé</li>
+        <li>RGPD &amp; droit du numérique</li>
+        <li>Cybersécurité, IA, algorithmes</li>
+      </ul>
+      <p>Que souhaitez-vous explorer&nbsp;? &#x1F60A;</p>`;
+  }
+
+  area.innerHTML = `
+    <div class="msg-row">
+      <div class="msg-avatar">&#x0641;</div>
+      <div class="msg-content">
+        <div class="msg-meta">
+          <span class="sender ai">FERHAA</span>
+          <span>${time}</span>
+        </div>
+        <div class="bubble">${bubble}</div>
+      </div>
+    </div>`;
+  scrollBottom();
+}
+
+function addMessage(role, text, source, temps) {
+  const disc = getActiveDisc();
+  if (!disc) return;
+
+  // Titre = premier message utilisateur (tronqué)
+  if (role === 'user' && disc.messages.length === 0) {
+    disc.title = text.length > 60 ? text.slice(0, 60) + '\u2026' : text;
+    document.getElementById('navTitle').textContent = isAdminRole(currentUser?.role) ? 'Discussion' : disc.title;
+  }
+
+  disc.messages.push({ role, text, source, temps, time: nowTime() });
+  disc.time = nowTime();
+  saveDiscussions();
+  renderDiscussions();
+
+  const area = document.getElementById('messagesArea');
+  const div  = document.createElement('div');
+  div.innerHTML = msgHtml({ role, text, source, temps, time: disc.messages[disc.messages.length-1].time });
+  area.appendChild(div.firstElementChild);
+  scrollBottom();
+}
+
+function msgHtml(m) {
+  const isUser   = m.role === 'user';
+  const initiale = (currentUser?.prenom || 'U')[0].toUpperCase();
+  const avatar   = isUser
+    ? `<div class="msg-avatar" style="background:var(--gold);color:#000;font-weight:800;font-size:.8rem;border:none;">${initiale}</div>`
+    : `<div class="msg-avatar">&#x0641;</div>`;
+  const senderCls = isUser ? '' : 'ai';
+  const senderName = isUser ? (currentUser?.prenom || 'Vous') : 'FERHAA';
+  const SOURCE_LABELS = {
+    'cloud_groq':           'Réponse générée via Cloud',
+    'degrade_local':        'Réponse locale (Edge) utilisée en fallback',
+    'cache_local':          'Réponse issue du cache',
+    'fallback_predefined':  'Mode hors ligne',
+  };
+  const sourceLabel = SOURCE_LABELS[m.source] || m.source || '';
+  const badge = (!isUser && sourceLabel)
+    ? `<span class="source-badge">${escHtml(sourceLabel)}${m.temps ? ' · ' + m.temps + 's' : ''}</span>`
+    : '';
+
+  // Boutons de réaction uniquement sur les messages IA pour les étudiants
+  const msgId = m.msgId || (m.time + '_' + (m.source || 'ai'));
+  const showReactions = !isUser && !isAdminRole(currentUser?.role);
+  const reactions = showReactions ? `
+    <div class="msg-reactions" data-msg-id="${escHtml(msgId)}">
+      <button class="reaction-btn like-btn" title="Bonne réponse" onclick="reactMsg(this,'like')">&#x1F44D; J'aime</button>
+      <button class="reaction-btn dislike-btn" title="Réponse incorrecte" onclick="reactMsg(this,'dislike')">&#x1F44E; Pas utile</button>
+      <button class="reaction-btn signal-btn" title="Signaler cette réponse" onclick="openSignalFromChat(this)">&#x26A0; Signaler</button>
+    </div>` : '';
+
+  return `
+    <div class="msg-row ${isUser ? 'user' : ''}" data-msg-text="${escHtml(m.text || '')}">
+      ${avatar}
+      <div class="msg-content">
+        <div class="msg-meta">
+          <span class="sender ${senderCls}">${escHtml(senderName)}</span>
+          <span>${m.time || ''}</span>
+        </div>
+        <div class="bubble">${formatText(m.text)}${badge}</div>
+        ${reactions}
+      </div>
+    </div>`;
+}
+
+function addLoadingBubble() {
+  const area = document.getElementById('messagesArea');
+  const div  = document.createElement('div');
+  div.id     = 'loadingBubble';
+  div.className = 'msg-row';
+  div.innerHTML = `
+    <div class="msg-avatar">&#x0641;</div>
+    <div class="msg-content">
+      <div class="msg-meta"><span class="sender ai">FERHAA</span></div>
+      <div class="bubble"><div class="loading-dots"><span></span><span></span><span></span></div></div>
+    </div>`;
+  area.appendChild(div);
+  scrollBottom();
+}
+
+function removeLoadingBubble() {
+  const el = document.getElementById('loadingBubble');
+  if (el) el.remove();
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   ENVOI
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+async function sendMessage() {
+  const input = document.getElementById('questionInput');
+  const question = input.value.trim();
+  if (!question) return;
+
+  input.value = '';
+  autoResize(input);
+  updateCounter(input);
+  document.getElementById('sendBtn').disabled = true;
+
+  addMessage('user', question);
+  addLoadingBubble();
+
+  try {
+    const resp = await fetch('/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question })
+    });
+    const data = await resp.json();
+    removeLoadingBubble();
+
+    if (data.erreur) {
+      addMessage('ai', 'âš ï¸ ' + data.erreur, null, null);
+    } else {
+      addMessage('ai', data.reponse, data.source, data.temps);
+    }
+  } catch {
+    removeLoadingBubble();
+    addMessage('ai', 'âš ï¸ Erreur de connexion au serveur.', null, null);
+  } finally {
+    document.getElementById('sendBtn').disabled = false;
+    input.focus();
+  }
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   UI HELPERS
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+}
+
+function updateCounter(el) {
+  document.getElementById('charCounter').textContent = `${el.value.length} / 1000`;
+}
+
+function scrollBottom() {
+  const area = document.getElementById('messagesArea');
+  area.scrollTop = area.scrollHeight;
+}
+
+function nowTime() {
+  return new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+}
+
+function escHtml(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function formatText(text) {
+  return escHtml(text)
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   ACTIONS
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+async function logout() {
+  await fetch('/api/logout', { method: 'POST' });
+  window.location.href = '/';
+}
+
+/* ══ RÉACTIONS & SIGNALEMENTS ══ */
+let _chatSignalReponse = '';
+let _chatSignalQuestion = '';
+
+function reactMsg(btn, type) {
+  const bar = btn.closest('.msg-reactions');
+  if (!bar) return;
+  if (type === 'like') {
+    const active = btn.classList.contains('liked');
+    bar.querySelectorAll('.like-btn').forEach(b => b.classList.remove('liked'));
+    bar.querySelectorAll('.dislike-btn').forEach(b => b.classList.remove('disliked'));
+    if (!active) btn.classList.add('liked');
+  } else {
+    const active = btn.classList.contains('disliked');
+    bar.querySelectorAll('.dislike-btn').forEach(b => b.classList.remove('disliked'));
+    bar.querySelectorAll('.like-btn').forEach(b => b.classList.remove('liked'));
+    if (!active) btn.classList.add('disliked');
+  }
+}
+
+function openSignalFromChat(btn) {
+  const msgRow = btn.closest('.msg-row');
+  const reponse = msgRow ? (msgRow.getAttribute('data-msg-text') || '') : '';
+  let question = '';
+  if (msgRow) {
+    let prev = msgRow.previousElementSibling;
+    while (prev) {
+      if (prev.classList.contains('user')) {
+        question = prev.getAttribute('data-msg-text') || '';
+        break;
+      }
+      prev = prev.previousElementSibling;
+    }
+  }
+  _chatSignalReponse = reponse;
+  _chatSignalQuestion = question;
+  document.getElementById('csDetails').value = '';
+  document.getElementById('csMotif').value = 'reponse_incorrecte';
+  btn.closest('.msg-reactions').querySelector('.signal-btn').classList.add('signaled');
+  document.getElementById('chatSignalModal').classList.remove('hidden');
+}
+
+function closeChatSignal() {
+  document.getElementById('chatSignalModal').classList.add('hidden');
+}
+
+async function submitChatSignal() {
+  const motif    = document.getElementById('csMotif').value;
+  const details  = document.getElementById('csDetails').value.trim();
+  const r = await fetch('/api/reclamations', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ question: _chatSignalQuestion, reponse_ia: _chatSignalReponse, motif, details }),
+  });
+  closeChatSignal();
+  if (r.ok) {
+    const hint = document.querySelector('.input-hint');
+    if (hint) { const orig = hint.textContent; hint.textContent = '✅ Signalement envoyé !'; setTimeout(()=>{ hint.textContent = orig; }, 3000); }
+  }
+}
+
+document.addEventListener('click', function(e) {
+  const modal = document.getElementById('chatSignalModal');
+  if (modal && e.target === modal) closeChatSignal();
+});
+
+function showHistory() {
+  window.location.href = isAdminRole(currentUser?.role) ? '/admin' : '/historique';
+}
+
+function showGovernance() {
+  window.location.href = '/gouvernance';
+}
+</script>
+</body>
+</html>
+

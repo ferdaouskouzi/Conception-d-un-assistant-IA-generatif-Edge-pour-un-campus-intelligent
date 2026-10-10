@@ -1,0 +1,12 @@
+flask>=3.0
+flask-cors>=4.0
+flask-mail>=0.10
+python-dotenv>=1.0
+werkzeug>=3.0
+requests>=2.31
+groq>=0.9
+pypdf>=4.2
+
+# Tests
+pytest>=8.0
+pytest-flask>=1.3
